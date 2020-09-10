@@ -101,11 +101,55 @@ impl Token {
         Token{shape,length,offset}
     }
 
-    /// Construct a token representing a text literal.
-    pub fn Text(text:impl Str, offset:usize) -> Token {
-        let str    = text.into();
-        let length = str.chars().count();
-        let shape  = Shape::Text(str);
+    /// Construct a token representing a line of text.
+    pub fn TextLine(style:TextStyle, segments:Vec<Token>, offset:usize) -> Token {
+        let length = style.length() + segments.iter().fold(0,|l,r| l + r.length + r.offset);
+        let shape = Shape::TextLine{style,segments};
+        Token{shape,length,offset}
+    }
+
+    /// Construct a token representing a block of text.
+    pub fn TextBlock(style:TextStyle, lines:Vec<Token>, indent: usize, offset:usize) -> Token {
+        let length = style.length() + lines.iter().fold(0, |l,r| {
+            l + match r.shape {
+                Shape::Line {..}    => indent + r.length + r.offset,
+                Shape::BlankLine(_) => indent + r.length + r.offset,
+                _                   => unreachable_panic!("Text blocks should only contain lines."),
+            }
+        });
+        let shape = Shape::TextBlock{style,lines};
+        Token{shape,length,offset}
+    }
+
+    /// Construct a token representing a raw text segment.
+    pub fn TextSegmentRaw(str:impl Str, offset:usize) -> Token {
+        let string = str.into();
+        let length = string.len();
+        let shape  = Shape::TextSegmentRaw(string);
+        Token{shape,length,offset}
+    }
+
+    /// Construct a token representing an escape sequence.
+    pub fn TextSegmentEscape(repr:impl Str, offset:usize) -> Token {
+        let string = repr.into();
+        let length = string.len();
+        let shape  = Shape::TextSegmentEscape(string);
+        Token{shape,length,offset}
+    }
+
+    /// Construct a token representing an interpolated text segment.
+    pub fn TextSegmentInterpolate(tokens:Vec<Token>, offset:usize) -> Token {
+        let length_of_interpolation_ticks = 2;
+        let length =
+            length_of_interpolation_ticks + tokens.iter().fold(0,|l,r| l + r.length + r.offset);
+        let shape = Shape::TextSegmentInterpolate{tokens};
+        Token{shape,length,offset}
+    }
+
+    /// Construct a token representing an invalid text segment.
+    pub fn TextSegmentInvalid(str:impl Str, length:usize, offset:usize) -> Token {
+        let string = str.into();
+        let shape  = Shape::TextSegmentInvalid(string);
         Token{shape,length,offset}
     }
 
@@ -179,9 +223,11 @@ pub enum BlockType {
     Discontinuous,
 }
 
-// ===================
-// === NewlineType ===
-// ===================
+
+
+// ==================
+// === LineEnding ===
+// ==================
 
 /// The type of newline associated with the line.
 #[derive(Copy,Clone,Debug,Display,PartialEq,Eq)]
@@ -211,6 +257,45 @@ impl LineEnding {
 impl Default for LineEnding {
     fn default() -> Self {
         LineEnding::None
+    }
+}
+
+
+
+// =================
+// === TextStyle ===
+// =================
+
+/// The style of the text literal.
+#[derive(Copy,Clone,Debug,Eq,PartialEq)]
+pub enum TextStyle {
+    // === Line ===
+
+    /// A interpolated text line literal.
+    InterpolatedLine,
+    /// A raw text line literal.
+    RawLine,
+    /// An unclosed text line literal.
+    UnclosedLine,
+
+    // === Block ===
+
+    /// An interpolated text block literal.
+    InterpolatedBlock,
+    /// A raw text block literal.
+    RawBlock,
+}
+
+impl TextStyle {
+    /// Calculate the length of the delimiters for a particular style of text literal.
+    pub fn length(&self) -> usize {
+        match self {
+            TextStyle::InterpolatedLine  => 2,
+            TextStyle::RawLine           => 2,
+            TextStyle::UnclosedLine      => 1,
+            TextStyle::InterpolatedBlock => 3,
+            TextStyle::RawBlock          => 3,
+        }
     }
 }
 
@@ -248,11 +333,31 @@ pub enum Shape {
     Number{base:String, number:String},
     /// A dangling base from a number literal.
     DanglingBase(String),
-    /// A text literal.
-    ///
-    /// This is currently way too simplistic to actually represent text, but it is a good
-    /// placeholder.
-    Text(String),
+    /// A text line literal.
+    TextLine{
+        /// The type of literal being encoded.
+        style : TextStyle,
+        /// The segments that make up the line of text.
+        segments : Vec<Token>,
+    },
+    /// A text block literal.
+    TextBlock{
+        /// The type of literal being encoded.
+        style : TextStyle,
+        /// The lines in the text block literal.
+        lines : Vec<Token>
+    },
+    /// A segment of a line of text containing only literal text.
+    TextSegmentRaw(String),
+    /// A segment of a line of text that represents an escape sequence.
+    TextSegmentEscape(String),
+    /// A segment of a line of text that contains an interpolated expression.
+    TextSegmentInterpolate {
+        /// The tokens making up the interpolated expression.
+        tokens : Vec<Token>
+    },
+    /// An invalid text segment (e.g. unclosed interpolate segment).
+    TextSegmentInvalid(String),
 
     // === Lines ===
     /// A line containing tokens.
@@ -336,9 +441,34 @@ impl Shape {
         Shape::DanglingBase(base.into())
     }
 
-    /// Construct a text literal.
-    pub fn text(text:impl Into<String>) -> Shape {
-        Shape::Text(text.into())
+    /// Construct a text line literal.
+    pub fn text_line(style:TextStyle, segments:Vec<Token>) -> Shape {
+        Shape::TextLine{style,segments}
+    }
+
+    /// Construct a text block literal.
+    pub fn text_block(style:TextStyle, lines:Vec<Token>) -> Shape {
+        Shape::TextBlock{style,lines}
+    }
+
+    /// Construct a raw text segment.
+    pub fn text_segment_raw(text:impl Str) -> Shape {
+        Shape::TextSegmentRaw(text.into())
+    }
+
+    /// Construct a text segment containing an escape sequence.
+    pub fn text_segment_escape(repr:impl Str) -> Shape {
+        Shape::TextSegmentEscape(repr.into())
+    }
+
+    /// Construct a text segment containing an interpolated expression.
+    pub fn text_segment_interpolate(tokens:Vec<Token>) -> Shape {
+        Shape::TextSegmentInterpolate {tokens}
+    }
+
+    /// Construct an invalid text segment.
+    pub fn text_segment_invalid(str:impl Str) -> Shape {
+        Shape::TextSegmentInvalid(str.into())
     }
 
     /// Construct a line that contains tokens.
@@ -435,7 +565,6 @@ impl Into<Vec<Token>> for Stream {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::token::BlockType;
 
 
     // === Testing Utilities ===
@@ -509,12 +638,57 @@ mod tests {
         assert_length(&token,3);
     }
 
+    // TODO [AA] Tests for the text tokens.
+
     #[test]
-    fn construct_text_token() {
-        let token = Token::Text("some prose goes here",0);
-        assert_shape(&token,Shape::text("some prose goes here"));
-        assert_length(&token,20);
-        // TODO [AA] Make this internally account for length of quotes.
+    fn construct_text_line_token() {
+        let token = Token::TextLine(TextStyle::RawLine,vec![],0);
+        assert_shape(&token,Shape::text_line(TextStyle::RawLine,vec![]));
+        assert_length(&token,2);
+    }
+
+    #[test]
+    fn construct_text_block_token() {
+        let lines = vec![
+            Token::Line(vec![Token::TextSegmentRaw("foo",0)],0,LineEnding::LF),
+            Token::Line(vec![Token::TextSegmentInterpolate(vec![],0)],0,LineEnding::LF)
+        ];
+        let token = Token::TextBlock(TextStyle::InterpolatedBlock,lines.clone(),2,0);
+        assert_shape(&token,Shape::text_block(TextStyle::InterpolatedBlock,lines.clone()));
+        assert_length(&token,14);
+    }
+
+    #[test]
+    fn construct_text_segment_raw_token() {
+        let token = Token::TextSegmentRaw("FooBar Baz Bam",0);
+        assert_shape(&token,Shape::text_segment_raw("FooBar Baz Bam"));
+        assert_length(&token,14);
+    }
+
+    #[test]
+    fn construct_text_segment_escape() {
+        let token = Token::TextSegmentEscape("\\t",0);
+        assert_shape(&token,Shape::text_segment_escape("\\t"));
+        assert_length(&token,2);
+    }
+
+    #[test]
+    fn construct_text_segment_interpolate() {
+        let tokens = vec![
+            Token::Variable("foo",0),
+            Token::Operator("+",1),
+            Token::Number("","1",1)
+        ];
+        let token = Token::TextSegmentInterpolate(tokens.clone(),0);
+        assert_shape(&token,Shape::text_segment_interpolate(tokens.clone()));
+        assert_length(&token,9);
+    }
+
+    #[test]
+    fn construct_text_segment_invalid() {
+        let token = Token::TextSegmentInvalid("scream",12,0);
+        assert_shape(&token,Shape::text_segment_invalid("scream"));
+        assert_length(&token,12);
     }
 
     #[test]

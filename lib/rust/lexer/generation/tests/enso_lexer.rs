@@ -483,6 +483,12 @@ fn offset_number() {
 // === Text ===
 // ============
 
+// #[test]
+// fn single_line_raw_text() {
+//     let input    = r#""dearest creature in creation, studying english pronunciation"#;
+//     let expected = token::Stream::from(vec![]);
+//     assert_lexes(input,expected);
+// }
 
 
 // ==============

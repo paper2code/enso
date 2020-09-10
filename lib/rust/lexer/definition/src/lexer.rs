@@ -1157,3 +1157,18 @@ impl Default for BlockState {
         BlockState::new()
     }
 }
+
+
+
+// =================
+// === TextState ===
+// =================
+
+/// The state required for lexing text literals in Enso.
+#[derive(Copy,Clone,Debug,Default,PartialEq)]
+pub struct TextState {
+    /// TODO
+    offset : usize,
+    /// TODO
+    spaces : usize,
+}
