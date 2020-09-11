@@ -405,7 +405,7 @@ pub fn rule_for_state(state:&State) -> Result<ImplItem,GenError> {
 #[allow(clippy::cmp_owned)]
 pub fn has_reader_arg(expr:&Expr) -> bool {
     match expr {
-        Expr::MethodCall(expr) => match expr.args.first() {
+        Expr::MethodCall(expr) => match expr.args.last() {
             Some(Expr::Path(path)) => {
                 match path.path.segments.first() {
                     Some(segment) => {
@@ -416,7 +416,7 @@ pub fn has_reader_arg(expr:&Expr) -> bool {
             }
             _ => false
         },
-        Expr::Call(expr) => match expr.args.first() {
+        Expr::Call(expr) => match expr.args.last() {
             Some(Expr::Path(path)) => {
                 match path.path.segments.first() {
                     Some(segment) => {

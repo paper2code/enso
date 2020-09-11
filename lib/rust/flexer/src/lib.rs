@@ -981,7 +981,10 @@
 //! You'll note that all of these functions have a couple of things in common:
 //!
 //! 1.  They have a type parameter `R` that conforms to the [`prelude::LazyReader`] trait.
-//! 2.  They take an argument of type `R`, that is the reader over which the lexer is running.
+//! 2.  They take an argument of type `R`, that is the reader over which the lexer is running as the
+//!     _last_ argument to the function.
+//! 3.  Any additional arguments must be valid in the scope in which the specialisation rules are
+//!     going to be generated.
 //!
 //! Both of these, combined, allow the transition functions to manipulate the text being read by the
 //! lexer.
@@ -1144,7 +1147,7 @@ where Definition : State,
         let result = self.state_stack.pop();
         match result {
             None        => (),
-            Some(ident) => debug!(self.logger,"Leave State: {self.groups().group(ident)}"),
+            Some(ident) => debug!(self.logger,"Leave State: {self.groups().group(ident).name}"),
         };
         self.logger.group_end();
         result
@@ -1177,6 +1180,11 @@ where Definition : State,
     /// Check if the lexer is currently in the state described by `state`.
     pub fn is_in_state(&self, state:group::Identifier) -> bool {
         self.current_state() == state
+    }
+
+    /// Check if the lexer is currently inside `state` at some point in the state stack.
+    pub fn is_inside_state(&self, state:group::Identifier) -> bool {
+        self.state_stack.iter().rev().any(|s| *s == state)
     }
 }
 
