@@ -216,3 +216,15 @@ fn dot_call_operator() {
     ]);
     assert_lexes(input,expected)
 }
+
+#[test]
+fn dot_eq_operator() {
+    let input    = ".== .  !=";
+    let expected = token::Stream::from(vec![
+        Token::Operator(".",0),
+        Token::Operator("==",0),
+        Token::Operator(".",1),
+        Token::Operator("!=",2),
+    ]);
+    assert_lexes(input,expected);
+}

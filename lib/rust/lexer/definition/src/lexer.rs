@@ -406,10 +406,12 @@ impl EnsoLexer {
     /// Create a grouping operator.
     fn on_group<R:LazyReader>(&mut self, reader:&mut R) {
         trace!(self.logger,"Operator::on_group");
-        let operator = self.consume_current();
-        let offset   = self.offset.consume();
-        let token    = Token::Operator(operator,offset);
+        let suffix_check = self.ident_suffix_check;
+        let operator     = self.consume_current();
+        let offset       = self.offset.consume();
+        let token        = Token::Operator(operator,offset);
         self.append_token(token);
+        self.push_state(suffix_check);
         self.ident_on_no_error_suffix(reader);
     }
 
@@ -429,14 +431,19 @@ impl EnsoLexer {
         }
     }
 
-    /// Triggered when an operator is immediately followed by another (e.g. `.+`).
-    fn on_dot_operator<R:LazyReader>(&mut self, reader:&mut R) {
+    /// Triggered when an operator is immediately followed by another (e.g. `.+` or `. ==`).
+    fn on_dotted_operator<R:LazyReader>(&mut self, _reader:&mut R) {
         trace!(self.logger,"Operator::on_dot_operator");
-        let current  = self.consume_current();
-        let offset   = self.offset.consume();
-        let operator = Token::Operator(current,offset);
-        self.append_token(operator);
-        self.ident_on_no_error_suffix(reader);
+        let suffix_check  = self.operator_suffix_check;
+        let offset        = self.offset.consume();
+        let dotted_op     = Token::Operator(".",offset);
+        let current_match = self.consume_current();
+        let second_op_str = current_match.trim_start_matches(|c| c == ' ' || c == '.');
+        let second_offset = current_match.chars().count() - second_op_str.chars().count() - 1;
+        let second_op     = Token::Operator(second_op_str,second_offset);
+        self.append_token(dotted_op);
+        self.append_token(second_op);
+        self.push_state(suffix_check);
     }
 
     /// The rules for lexing Enso operators.
@@ -445,19 +452,22 @@ impl EnsoLexer {
         let equals        = c!('=');
         let comma         = c!(',');
         let dot           = c!('.');
+        let spaces        = EnsoLexer::spaces();
         let error_char    = &operator_char | &equals | &comma | &dot;
         let error_suffix  = &error_char.many1();
         let operator_body = &operator_char.many1();
         let ops_eq =
             &equals | l!("==") | l!(">=") | l!("<=") | l!("!=") | l!("#=") | l!("=>");
         let ops_in          = l!("in");
-        let ops_dot         = dot | comma | l!("..") | l!("...");
+        let ops_dot         = &dot | comma | l!("..") | l!("...");
+        let dotted_op       = &dot >> &spaces.opt() >> (operator_body | &ops_eq);
         let ops_group       = Pattern::any_of(Self::group_chars().as_str());
         let ops_no_modifier = &ops_eq | &ops_dot | &ops_in;
 
         let initial_state_id = lexer.initial_state;
         let initial_state    = lexer.group_mut(initial_state_id);
         initial_state.create_rule(&operator_body,  "self.on_operator(reader)");
+        initial_state.create_rule(&dotted_op,      "self.on_dotted_operator(reader)");
         initial_state.create_rule(&ops_no_modifier,"self.on_operator_no_modifier(reader)");
         initial_state.create_rule(&ops_group,      "self.on_group(reader)");
 
@@ -467,7 +477,6 @@ impl EnsoLexer {
 
         let operator_sfx_check_id = lexer.operator_suffix_check;
         let operator_sfx_check    = lexer.group_mut(operator_sfx_check_id);
-        operator_sfx_check.create_rule(&operator_body,    "self.on_dot_operator(reader)");
         operator_sfx_check.create_rule(&error_suffix,     "self.ident_on_error_suffix(reader)");
         operator_sfx_check.create_rule(&Pattern::always(),"self.ident_on_no_error_suffix(reader)");
     }
