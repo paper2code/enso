@@ -105,18 +105,18 @@ impl Registry {
     /// Converts the group identified by `group_id` into an NFA.
     ///
     /// Returns `None` if the group does not exist, or if the conversion fails.
-    pub fn to_nfa_from(&mut self, group_id:Identifier) -> Nfa {
+    pub fn to_nfa_from(&self, group_id:Identifier) -> AutomataData {
         let group     = self.group(group_id);
-        let mut nfa   = Nfa::default();
-        let start     = nfa.start;
+        let mut nfa   = AutomataData::default();
+        let start     = nfa.automaton.start;
         let build     = |rule:&Rule| nfa.new_pattern(start,&rule.pattern);
         let rules     = self.rules_for(group.id);
         let callbacks = rules.iter().map(|r| r.callback.clone()).collect_vec();
         let states    = rules.into_iter().map(build).collect_vec();
         let end       = nfa.new_state_exported();
         for (ix,state) in states.into_iter().enumerate() {
-            let callback_name   = group.callback_name(ix);
-            let callback_string = callbacks.get(ix).unwrap().clone();
+            nfa.set_name(state.id(),group.callback_name(ix));
+            nfa.set_code(state.id(),callbacks.get(ix).unwrap().clone());
             nfa.connect(state,end);
         }
         nfa
