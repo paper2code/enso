@@ -5,9 +5,9 @@ use crate::prelude::*;
 use quote::*;
 use syn::*;
 
-use crate::automata::dfa::DFA;
+use crate::automata::dfa::Dfa;
 use crate::automata::dfa::RuleExecutable;
-use crate::automata::state::Identifier;
+// use crate::automata::state::Identifier;
 use crate::automata::state::State;
 use crate::group::Group;
 use crate::group;
@@ -180,23 +180,25 @@ pub fn automaton_for_group
 ( group    : &Group
 , registry : &group::Registry
 ) -> Result<Vec<ImplItem>,GenError> {
-    let nfa       = registry.to_nfa_from(group.id);
-    let mut rules = Vec::with_capacity(nfa.states.len());
-    for state in nfa.states.iter() {
-        if state.name.is_some() {
-            rules.push(rule_for_state(state)?);
-        }
-    }
-    let mut dfa             = DFA::from(&nfa);
-    let dispatch_for_dfa    = dispatch_in_state(&dfa,group.id.into())?;
-    let mut dfa_transitions = transitions_for_dfa(&mut dfa,group.id.into())?;
-    dfa_transitions.push(dispatch_for_dfa);
-    dfa_transitions.extend(rules);
-    Ok(dfa_transitions)
+    // TODO [AA] Need functions num_states and iter_states
+    // let nfa       = registry.to_nfa_from(group.id);
+    // let mut rules = Vec::with_capacity(nfa.states.len());
+    // for state in nfa.states.iter() {
+    //     if state.name.is_some() {
+    //         rules.push(rule_for_state(state)?);
+    //     }
+    // }
+    // let mut dfa             = Dfa::from(&nfa);
+    // let dispatch_for_dfa    = dispatch_in_state(&dfa,group.id.into())?;
+    // let mut dfa_transitions = transitions_for_dfa(&mut dfa,group.id.into())?;
+    // dfa_transitions.push(dispatch_for_dfa);
+    // dfa_transitions.extend(rules);
+    // Ok(dfa_transitions)
+    unimplemented!()
 }
 
 /// Generate a set of transition functions for the provided `dfa`, with identifier `id`.
-pub fn transitions_for_dfa(dfa:&mut DFA, id:usize) -> Result<Vec<ImplItem>,GenError> {
+pub fn transitions_for_dfa(dfa:&mut Dfa, id:usize) -> Result<Vec<ImplItem>,GenError> {
     let mut state_has_overlapping_rules:HashMap<usize,bool> = HashMap::new();
     state_has_overlapping_rules.insert(0,false);
     let state_names:Vec<_> = dfa.links.row_indices().map(|ix| (ix, name_for_step(id, ix))).collect();
@@ -210,7 +212,7 @@ pub fn transitions_for_dfa(dfa:&mut DFA, id:usize) -> Result<Vec<ImplItem>,GenEr
 /// Generate a specific transition function for
 #[allow(clippy::implicit_hasher)]
 pub fn transition_for_dfa<S:BuildHasher>
-( dfa             : &mut DFA
+( dfa             : &mut Dfa
 , transition_name : Ident
 , state_ix        : usize
 , has_overlaps    : &mut HashMap<usize,bool,S>
@@ -226,53 +228,54 @@ pub fn transition_for_dfa<S:BuildHasher>
 
 /// Generate the pattern match for a given transition function.
 pub fn match_for_transition<S:BuildHasher>
-( dfa          : &mut DFA
+( dfa          : &mut Dfa
 , state_ix     : usize
 , has_overlaps : &mut HashMap<usize,bool,S>
 ) -> Result<Expr,GenError> {
-    let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
-    let state             = dfa.callbacks.get(state_ix).expect("Internal error.").clone();
-    let mut trigger_state = dfa.links[(state_ix,0)];
-    let mut range_start   = u32::min_value();
-    let divisions:Vec<_>  = dfa.alphabet_segmentation.divisions_as_vec();
-    let mut branches      = Vec::with_capacity(divisions.len());
-    for division in divisions.into_iter() {
-        let ix                = division.position;
-        let sym               = division.symbol;
-        let new_trigger_state = dfa.links[(state_ix,ix)];
-        if new_trigger_state != trigger_state {
-            let range_end             = if sym.value != 0 { sym.value - 1 } else { sym.value };
-            let current_trigger_state = trigger_state;
-            let current_range_start   = range_start;
-            trigger_state             = new_trigger_state;
-            range_start               = sym.value;
-            let body =
-                branch_body(dfa,current_trigger_state,&state,has_overlaps,overlaps)?;
-            branches.push(Branch::new(Some(current_range_start..=range_end),body))
-        } else {}
-    }
-    let catch_all_branch_body = branch_body(dfa,trigger_state,&state,has_overlaps,overlaps)?;
-    let catch_all_branch      = Branch::new(None,catch_all_branch_body);
-    branches.push(catch_all_branch);
-    let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
-    let mut match_expr:ExprMatch = parse_quote! {
-        match u32::from(reader.character()) {
-            #(#arms)*
-        }
-    };
-    match_expr.arms = arms;
-    Ok(Expr::Match(match_expr))
+    // let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
+    // let state             = dfa.callbacks.get(state_ix).expect("Internal error.").clone();
+    // let mut trigger_state = dfa.links[(state_ix,0)];
+    // let mut range_start   = u32::min_value();
+    // let divisions:Vec<_>  = dfa.alphabet_segmentation.divisions_as_vec();
+    // let mut branches      = Vec::with_capacity(divisions.len());
+    // for division in divisions.into_iter() {
+    //     let ix                = division.position;
+    //     let sym               = division.symbol;
+    //     let new_trigger_state = dfa.links[(state_ix,ix)];
+    //     if new_trigger_state != trigger_state {
+    //         let range_end             = if sym.value != 0 { sym.value - 1 } else { sym.value };
+    //         let current_trigger_state = trigger_state;
+    //         let current_range_start   = range_start;
+    //         trigger_state             = new_trigger_state;
+    //         range_start               = sym.value;
+    //         let body =
+    //             branch_body(dfa,current_trigger_state,&state,has_overlaps,overlaps)?;
+    //         branches.push(Branch::new(Some(current_range_start..=range_end),body))
+    //     } else {}
+    // }
+    // let catch_all_branch_body = branch_body(dfa,trigger_state,&state,has_overlaps,overlaps)?;
+    // let catch_all_branch      = Branch::new(None,catch_all_branch_body);
+    // branches.push(catch_all_branch);
+    // let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
+    // let mut match_expr:ExprMatch = parse_quote! {
+    //     match u32::from(reader.character()) {
+    //         #(#arms)*
+    //     }
+    // };
+    // match_expr.arms = arms;
+    // Ok(Expr::Match(match_expr))
+    unimplemented!()
 }
 
 /// Generate the branch body for a transition in the DFA.
 pub fn branch_body<S:BuildHasher>
-( dfa           : &mut DFA
-, target_state  : Identifier
+( dfa           : &mut Dfa
+, target_state  : State<Dfa>
 , maybe_state   : &Option<RuleExecutable>
 , has_overlaps  : &mut HashMap<usize,bool,S>
 , rules_overlap : bool
 ) -> Result<Block,GenError> {
-    if target_state == Identifier::INVALID {
+    if target_state == State::<Dfa>::INVALID {
         match maybe_state {
             None => {
                 Ok(parse_quote! {{
@@ -306,18 +309,19 @@ pub fn branch_body<S:BuildHasher>
             }
         }
     } else {
-        let target_state_has_no_rule = match maybe_state {
-            Some(state) => if !dfa.has_rule_for(target_state) {
-                dfa.callbacks[target_state.id] = Some(state.clone());
-                has_overlaps.insert(target_state.id,true);
-                true
-            } else {
-                false
-            },
-            None => false
-        };
+        let target_state_has_no_rule = unimplemented!();
+        // let target_state_has_no_rule = match maybe_state {
+        //     Some(state) => if !dfa.has_rule_for(target_state) {
+        //         // dfa.callbacks[target_state.id] = Some(state.clone());
+        //         // has_overlaps.insert(target_state.id,true);
+        //         // true
+        //     } else {
+        //         false
+        //     },
+        //     None => false
+        // };
 
-        let state_id = Literal::usize_unsuffixed(target_state.id);
+        let state_id = Literal::usize_unsuffixed(target_state.id());
         let ret:Expr = parse_quote! {
             StageStatus::ContinueWith(#state_id.into())
         };
@@ -340,7 +344,7 @@ pub fn branch_body<S:BuildHasher>
 ///
 /// This dispatch function is responsible for dispatching based on the sub-state of any given lexer
 /// state, and is the main part of implementing the actual lexer transitions.
-pub fn dispatch_in_state(dfa:&DFA, id:usize) -> Result<ImplItem,GenError> {
+pub fn dispatch_in_state(dfa:&Dfa, id:usize) -> Result<ImplItem,GenError> {
     let dispatch_name:Ident = str_to_ident(format!("dispatch_in_state_{}",id))?;
     let state_names  = dfa.links.row_indices().map(|ix| (ix, name_for_step(id,ix))).collect_vec();
     let mut branches = Vec::with_capacity(state_names.len());
@@ -378,27 +382,28 @@ pub fn name_for_step(in_state:usize, to_state:usize) -> Ident {
 }
 
 /// Generate an executable rule function for a given lexer state.
-pub fn rule_for_state(state:&State) -> Result<ImplItem,GenError> {
-    match &state.name {
-        None => unreachable_panic!("Rule for state requested, but state has none."),
-        Some(name) => {
-            let rule_name = str_to_ident(name)?;
-            let code:Expr = match parse_str(state.callback.as_str()) {
-                Ok(expr) => expr,
-                Err(_)   => return Err(GenError::BadExpression(state.callback.clone()))
-            };
-            if !has_reader_arg(&code) {
-                return Err(GenError::BadCallbackArgument)
-            }
-
-            let tree:ImplItem = parse_quote! {
-                fn #rule_name<R:LazyReader>(&mut self, reader:&mut R) {
-                    #code
-                }
-            };
-            Ok(tree)
-        }
-    }
+pub fn rule_for_state(state:&State<Dfa>) -> Result<ImplItem,GenError> {
+    unimplemented!()
+    // match &state.name {
+    //     None => unreachable_panic!("Rule for state requested, but state has none."),
+    //     Some(name) => {
+    //         let rule_name = str_to_ident(name)?;
+    //         let code:Expr = match parse_str(state.callback.as_str()) {
+    //             Ok(expr) => expr,
+    //             Err(_)   => return Err(GenError::BadExpression(state.callback.clone()))
+    //         };
+    //         if !has_reader_arg(&code) {
+    //             return Err(GenError::BadCallbackArgument)
+    //         }
+    //
+    //         let tree:ImplItem = parse_quote! {
+    //             fn #rule_name<R:LazyReader>(&mut self, reader:&mut R) {
+    //                 #code
+    //             }
+    //         };
+    //         Ok(tree)
+    //     }
+    // }
 }
 
 /// Checks if the given `expr` is a  call with a single argument "reader" being passed.

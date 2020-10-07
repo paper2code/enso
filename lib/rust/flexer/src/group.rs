@@ -1,12 +1,15 @@
 //! This module provides an API for grouping multiple flexer rules.
 
-use crate::automata::nfa::NFA;
+use crate::prelude::*;
+
+use crate::automata::nfa::Nfa;
 use crate::automata::pattern::Pattern;
 use crate::group::rule::Rule;
 
 use itertools::Itertools;
 use std::fmt::Display;
-use wasm_bindgen::__rt::core::fmt::Formatter;
+use crate::prelude::fmt::Formatter;
+use crate::prelude::HashMap;
 
 pub mod rule;
 
@@ -23,7 +26,7 @@ pub mod rule;
 #[derive(Clone,Debug,Default)]
 pub struct Registry {
     /// The groups defined for the lexer.
-    groups:Vec<Group>
+    groups:Vec<Group>,
 }
 
 impl Registry {
@@ -102,18 +105,21 @@ impl Registry {
     /// Converts the group identified by `group_id` into an NFA.
     ///
     /// Returns `None` if the group does not exist, or if the conversion fails.
-    pub fn to_nfa_from(&self, group:Identifier) -> NFA {
-        let group     = self.group(group);
-        let mut nfa   = NFA::default();
-        let start     = nfa.new_state();
+    pub fn to_nfa_from(&mut self, group_id:Identifier) -> Nfa {
+        let group     = self.group(group_id);
+        let mut nfa   = Nfa::default();
+        let start     = nfa.new_state_exported();
         let build     = |rule:&Rule| nfa.new_pattern(start,&rule.pattern);
         let rules     = self.rules_for(group.id);
         let callbacks = rules.iter().map(|r| r.callback.clone()).collect_vec();
         let states    = rules.into_iter().map(build).collect_vec();
-        let end       = nfa.new_state();
+        let end       = nfa.new_state_exported();
+        let group_mut = self.group_mut(group_id);
         for (ix,state) in states.into_iter().enumerate() {
-            nfa.states[state.id].name     = Some(group.callback_name(ix));
-            nfa.states[state.id].callback = callbacks.get(ix).unwrap().clone();
+            let callback_name   = group_mut.callback_name(ix);
+            let callback_string = callbacks.get(ix).unwrap().clone();
+            group_mut.state_names.insert(state.id(),callback_name);
+            group_mut.state_callbacks.insert(state.id(),callback_string);
             nfa.connect(state,end);
         }
         nfa
@@ -198,14 +204,20 @@ pub struct Group {
     pub parent_index:Option<Identifier>,
     /// A set of flexer rules.
     pub rules:Vec<Rule>,
+    /// The names for the user-defined states.
+    pub state_names:HashMap<usize,String>,
+    /// The callback functions for the user-defined states.
+    pub state_callbacks:HashMap<usize,String>,
 }
 
 impl Group {
 
     /// Creates a new group.
     pub fn new(id:Identifier, name:impl Into<String>, parent_index:Option<Identifier>) -> Self {
-        let rules = Vec::new();
-        Group{id,name:name.into(),parent_index,rules}
+        let rules           = default();
+        let state_names     = default();
+        let state_callbacks = default();
+        Group{id,name:name.into(),parent_index,rules,state_names,state_callbacks}
     }
 
     /// Adds a new rule to the current group.
@@ -248,6 +260,7 @@ impl Display for Group {
 // === Tests ===
 // =============
 
+/*
 #[cfg(test)]
 pub mod tests {
     extern crate test;
@@ -364,3 +377,4 @@ pub mod tests {
         bencher.iter(|| complex_rules(1000).to_nfa_from(default()))
     }
 }
+ */
