@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use crate::automata::nfa::Nfa;
+use crate::automata::nfa;
 use crate::automata::pattern::Pattern;
 use crate::group::rule::Rule;
 
@@ -105,9 +106,9 @@ impl Registry {
     /// Converts the group identified by `group_id` into an NFA.
     ///
     /// Returns `None` if the group does not exist, or if the conversion fails.
-    pub fn to_nfa_from(&self, group_id:Identifier) -> AutomataData {
+    pub fn to_nfa_from(&self, group_id:Identifier) -> AutomatonData {
         let group     = self.group(group_id);
-        let mut nfa   = AutomataData::default();
+        let mut nfa   = AutomatonData::default();
         let start     = nfa.automaton.start;
         let build     = |rule:&Rule| nfa.new_pattern(start,&rule.pattern);
         let rules     = self.rules_for(group.id);
@@ -115,6 +116,7 @@ impl Registry {
         let states    = rules.into_iter().map(build).collect_vec();
         let end       = nfa.new_state_exported();
         for (ix,state) in states.into_iter().enumerate() {
+            nfa.add_state(state);
             nfa.set_name(state.id(),group.callback_name(ix));
             nfa.set_code(state.id(),callbacks.get(ix).unwrap().clone());
             nfa.connect(state,end);
@@ -141,17 +143,19 @@ impl Registry {
 
 /// Storage for the generated automaton and auxiliary data required for code generation.
 #[derive(Clone,Debug,Default,PartialEq,Eq)]
-pub struct AutomataData {
+pub struct AutomatonData {
     /// The non-deterministic finite automaton implementing the group of rules it was generated
     /// from.
     automaton : Nfa,
+    /// The states defined in the automaton.
+    states : Vec<nfa::State>,
     /// The names of callbacks, where provided.
     transition_names : HashMap<usize,String>,
     /// The code to execute on a callback, where available.
     callback_code : HashMap<usize,String>,
 }
 
-impl AutomataData {
+impl AutomatonData {
     /// Set the name for the provided `state_id`.
     pub fn set_name(&mut self, state_id:usize,name:impl Str) {
         self.transition_names.insert(state_id,name.into());
@@ -160,6 +164,11 @@ impl AutomataData {
     /// Set the callback code for the provided `state_id`.
     pub fn set_code(&mut self, state_id:usize,code:impl Str) {
         self.callback_code.insert(state_id,code.into());
+    }
+
+    /// Add the provided `state` to the state registry.
+    pub fn add_state(&mut self, state:nfa::State) {
+        self.states.push(state);
     }
 
     /// Get the name for the provided `state_id`, if present.
@@ -171,12 +180,32 @@ impl AutomataData {
     pub fn code(&self, state_id:usize) -> Option<&str> {
         self.callback_code.get(&state_id).map(|s| s.as_str())
     }
+
+    /// Get a reference to the states for this automaton.
+    pub fn states(&self) -> &Vec<nfa::State> {
+        &self.states
+    }
+
+    /// Get a reference to the state names for this automaton.
+    pub fn names(&self) -> &HashMap<usize,String> {
+        &self.transition_names
+    }
+
+    /// Get a reference to the callbacks for this automaton.
+    pub fn callbacks(&self) -> &HashMap<usize,String> {
+        &self.callback_code
+    }
+
+    /// Get a reference to the automaton itself.
+    pub fn automaton(&self) -> &Nfa {
+        &self.automaton
+    }
 }
 
 
 // === Trait Impls ===
 
-impl Deref for AutomataData {
+impl Deref for AutomatonData {
     type Target = Nfa;
 
     fn deref(&self) -> &Self::Target {
@@ -184,7 +213,7 @@ impl Deref for AutomataData {
     }
 }
 
-impl DerefMut for AutomataData {
+impl DerefMut for AutomatonData {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.automaton
     }

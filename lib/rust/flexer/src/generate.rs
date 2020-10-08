@@ -6,10 +6,13 @@ use quote::*;
 use syn::*;
 
 use crate::automata::dfa::Dfa;
+use crate::automata::nfa::Nfa;
+use crate::automata::nfa;
+use crate::automata::dfa;
 use crate::automata::dfa::RuleExecutable;
 // use crate::automata::state::Identifier;
 use crate::automata::state::State;
-use crate::group::Group;
+use crate::group::{Group, AutomatonData};
 use crate::group;
 
 use enso_macro_utils::repr;
@@ -180,31 +183,29 @@ pub fn automaton_for_group
 ( group    : &Group
 , registry : &group::Registry
 ) -> Result<Vec<ImplItem>,GenError> {
-    // TODO [AA] Need functions num_states and iter_states
-    // let nfa       = registry.to_nfa_from(group.id);
-    // let mut rules = Vec::with_capacity(nfa.states.len());
-    // for state in nfa.states.iter() {
-    //     if state.name.is_some() {
-    //         rules.push(rule_for_state(state)?);
-    //     }
-    // }
-    // let mut dfa             = Dfa::from(&nfa);
-    // let dispatch_for_dfa    = dispatch_in_state(&dfa,group.id.into())?;
-    // let mut dfa_transitions = transitions_for_dfa(&mut dfa,group.id.into())?;
-    // dfa_transitions.push(dispatch_for_dfa);
-    // dfa_transitions.extend(rules);
-    // Ok(dfa_transitions)
-    unimplemented!()
+    let nfa       = registry.to_nfa_from(group.id);
+    let mut rules = Vec::with_capacity(nfa.states().len());
+    for state in nfa.states().iter() {
+        if nfa.name(state.id()).is_some() {
+            rules.push(rule_for_state(state,&nfa)?);
+        }
+    }
+    let mut dfa             = Dfa::from(nfa.automaton());
+    let dispatch_for_dfa    = dispatch_in_state(&dfa,group.id.into())?;
+    let mut dfa_transitions = transitions_for_dfa(&mut dfa,&nfa,group.id.into())?;
+    dfa_transitions.push(dispatch_for_dfa);
+    dfa_transitions.extend(rules);
+    Ok(dfa_transitions)
 }
 
 /// Generate a set of transition functions for the provided `dfa`, with identifier `id`.
-pub fn transitions_for_dfa(dfa:&mut Dfa, id:usize) -> Result<Vec<ImplItem>,GenError> {
+pub fn transitions_for_dfa(dfa:&mut Dfa, data:&AutomatonData, id:usize) -> Result<Vec<ImplItem>,GenError> {
     let mut state_has_overlapping_rules:HashMap<usize,bool> = HashMap::new();
     state_has_overlapping_rules.insert(0,false);
     let state_names:Vec<_> = dfa.links.row_indices().map(|ix| (ix, name_for_step(id, ix))).collect();
     let mut transitions    = Vec::with_capacity(state_names.len());
     for (ix,name) in state_names.into_iter() {
-        transitions.push(transition_for_dfa(dfa,name,ix,&mut state_has_overlapping_rules)?)
+        transitions.push(transition_for_dfa(dfa,name,data,ix,&mut state_has_overlapping_rules)?)
     }
     Ok(transitions)
 }
@@ -214,10 +215,11 @@ pub fn transitions_for_dfa(dfa:&mut Dfa, id:usize) -> Result<Vec<ImplItem>,GenEr
 pub fn transition_for_dfa<S:BuildHasher>
 ( dfa             : &mut Dfa
 , transition_name : Ident
+, data            : &AutomatonData
 , state_ix        : usize
 , has_overlaps    : &mut HashMap<usize,bool,S>
 ) -> Result<ImplItem,GenError> {
-    let match_expr:Expr   = match_for_transition(dfa,state_ix,has_overlaps)?;
+    let match_expr:Expr   = match_for_transition(dfa,state_ix,data,has_overlaps)?;
     let function:ImplItem = parse_quote! {
         fn #transition_name<R:LazyReader>(&mut self, reader:&mut R) -> StageStatus {
             #match_expr
@@ -230,9 +232,14 @@ pub fn transition_for_dfa<S:BuildHasher>
 pub fn match_for_transition<S:BuildHasher>
 ( dfa          : &mut Dfa
 , state_ix     : usize
+, data         : &AutomatonData
 , has_overlaps : &mut HashMap<usize,bool,S>
 ) -> Result<Expr,GenError> {
-    // let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
+    let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
+    println!("{:?}",data.states());
+    println!("{:?}",data.names());
+    println!("{:?}",data.callbacks());
+    println!("{:?}",dfa.sources);
     // let state             = dfa.callbacks.get(state_ix).expect("Internal error.").clone();
     // let mut trigger_state = dfa.links[(state_ix,0)];
     // let mut range_start   = u32::min_value();
@@ -382,28 +389,28 @@ pub fn name_for_step(in_state:usize, to_state:usize) -> Ident {
 }
 
 /// Generate an executable rule function for a given lexer state.
-pub fn rule_for_state(state:&State<Dfa>) -> Result<ImplItem,GenError> {
-    unimplemented!()
-    // match &state.name {
-    //     None => unreachable_panic!("Rule for state requested, but state has none."),
-    //     Some(name) => {
-    //         let rule_name = str_to_ident(name)?;
-    //         let code:Expr = match parse_str(state.callback.as_str()) {
-    //             Ok(expr) => expr,
-    //             Err(_)   => return Err(GenError::BadExpression(state.callback.clone()))
-    //         };
-    //         if !has_reader_arg(&code) {
-    //             return Err(GenError::BadCallbackArgument)
-    //         }
-    //
-    //         let tree:ImplItem = parse_quote! {
-    //             fn #rule_name<R:LazyReader>(&mut self, reader:&mut R) {
-    //                 #code
-    //             }
-    //         };
-    //         Ok(tree)
-    //     }
-    // }
+pub fn rule_for_state(state:&nfa::State, automaton:&AutomatonData) -> Result<ImplItem,GenError> {
+    let state_name = automaton.name(state.id());
+    match state_name {
+        None => unreachable_panic!("Rule for state requested, but state has none."),
+        Some(name) => {
+            let rule_name = str_to_ident(name)?;
+            let callback  = automaton.code(state.id()).expect("If it is named it has a callback.");
+            let code:Expr = match parse_str(callback) {
+                Ok(expr) => expr,
+                Err(_)   => return Err(GenError::BadExpression(callback.into()))
+            };
+            if !has_reader_arg(&code) {
+                return Err(GenError::BadCallbackArgument)
+            }
+            let tree:ImplItem = parse_quote! {
+                fn #rule_name<R:LazyReader>(&mut self, reader:&mut R) {
+                    #code
+                }
+            };
+            Ok(tree)
+        }
+    }
 }
 
 /// Checks if the given `expr` is a  call with a single argument "reader" being passed.
