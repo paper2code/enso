@@ -12,7 +12,7 @@ use crate::automata::dfa;
 use crate::automata::dfa::RuleExecutable;
 // use crate::automata::state::Identifier;
 use crate::automata::state::State;
-use crate::group::{Group, AutomatonData};
+use crate::group::{Group, AutomatonData, CallbackError};
 use crate::group;
 
 use enso_macro_utils::repr;
@@ -258,11 +258,11 @@ pub fn match_for_transition<S:BuildHasher>
             trigger_state             = new_trigger_state;
             range_start               = sym.index;
             let body =
-                branch_body(dfa,current_trigger_state,state_ix,has_overlaps,overlaps)?;
+                branch_body(dfa,current_trigger_state,state_ix,data,has_overlaps,overlaps)?;
             branches.push(Branch::new(Some(current_range_start..=range_end),body))
         } else {}
     }
-    let catch_all_branch_body = branch_body(dfa,trigger_state,state_ix,has_overlaps,overlaps)?;
+    let catch_all_branch_body = branch_body(dfa,trigger_state,state_ix,data,has_overlaps,overlaps)?;
     let catch_all_branch      = Branch::new(None,catch_all_branch_body);
     branches.push(catch_all_branch);
     let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
@@ -280,43 +280,46 @@ pub fn branch_body<S:BuildHasher>
 ( dfa           : &mut Dfa
 , target_state  : State<Dfa>
 , state_ix      : usize
+, data          : &AutomatonData
 , has_overlaps  : &mut HashMap<usize,bool,S>
 , rules_overlap : bool
 ) -> Result<Block,GenError> {
-    let sources = dfa.sources.get(state_ix).expect("Internal error.");
+    let sources              = dfa.sources.get(state_ix).expect("Internal error.");
+    let callback_for_sources = data.callback_for_state(sources);
     if target_state == State::<Dfa>::INVALID {
-    //     match maybe_state {
-    //         None => {
-    //             Ok(parse_quote! {{
-    //                 StageStatus::ExitFail
-    //             }})
-    //         },
-    //         Some(rule_exec) => {
-    //             let rule:Expr = match parse_str(rule_exec.code.as_str()) {
-    //                 Ok(rule) => rule,
-    //                 Err(_)   => return Err(GenError::BadExpression(rule_exec.code.clone()))
-    //             };
-    //             if rules_overlap {
-    //                 Ok(parse_quote! {{
-    //                     let rule_bookmark    = self.bookmarks.rule_bookmark;
-    //                     let matched_bookmark = self.bookmarks.matched_bookmark;
-    //                     self.bookmarks.rewind(rule_bookmark,reader);
-    //                     self.current_match = reader.pop_result();
-    //                     self.#rule(reader);
-    //                     self.bookmarks.bookmark(matched_bookmark,reader);
-    //                     StageStatus::ExitSuccess
-    //                 }})
-    //             } else {
-    //                 Ok(parse_quote! {{
-    //                     let matched_bookmark = self.bookmarks.matched_bookmark;
-    //                     self.current_match   = reader.pop_result();
-    //                     self.#rule(reader);
-    //                     self.bookmarks.bookmark(matched_bookmark,reader);
-    //                     StageStatus::ExitSuccess
-    //                 }})
-    //             }
-    //         }
-    //     }
+        match callback_for_sources {
+            Err(CallbackError::NoCallback) => {
+                Ok(parse_quote! {{
+                    StageStatus::ExitFail
+                }})
+            },
+            Err(err) => Err(err.into()),
+            Ok(rule) => {
+                let rule:Expr = match parse_str(rule.as_str()) {
+                    Ok(rule) => rule,
+                    Err(_) => return Err(GenError::BadExpression(rule))
+                };
+                if rules_overlap {
+                    Ok(parse_quote! {{
+                        let rule_bookmark    = self.bookmarks.rule_bookmark;
+                        let matched_bookmark = self.bookmarks.matched_bookmark;
+                        self.bookmarks.rewind(rule_bookmark,reader);
+                        self.current_match = reader.pop_result();
+                        self.#rule(reader);
+                        self.bookmarks.bookmark(matched_bookmark,reader);
+                        StageStatus::ExitSuccess
+                    }})
+                } else {
+                    Ok(parse_quote! {{
+                        let matched_bookmark = self.bookmarks.matched_bookmark;
+                        self.current_match   = reader.pop_result();
+                        self.#rule(reader);
+                        self.bookmarks.bookmark(matched_bookmark,reader);
+                        StageStatus::ExitSuccess
+                    }})
+                }
+            }
+        }
     } else {
     //     let target_state_has_no_rule = unimplemented!();
     //     // let target_state_has_no_rule = match maybe_state {
@@ -346,8 +349,8 @@ pub fn branch_body<S:BuildHasher>
     //             #ret
     //         }})
     //     }
+        unimplemented!()
     }
-    unimplemented!()
 }
 
 /// Generate the dispatch function for a given lexer state.
@@ -465,6 +468,8 @@ pub enum GenError {
     BadLiteral(String),
     /// The provided string is not a valid rust path.
     BadPath(String),
+    /// The provided callback isn't valid.
+    BadCallback(group::CallbackError),
 }
 
 
@@ -480,7 +485,14 @@ impl Display for GenError {
             GenError::BadExpression(str) => write!(f,"`{}` is not a valid rust expression.",str),
             GenError::BadLiteral(str)    => write!(f,"`{}` is not a valid rust literal.",str),
             GenError::BadPath(str)       => write!(f,"`{}` is not a valid rust path.",str),
+            GenError::BadCallback(err)   => write!(f,"`{}`",err),
         }
+    }
+}
+
+impl From<group::CallbackError> for GenError {
+    fn from(err: CallbackError) -> Self {
+        GenError::BadCallback(err)
     }
 }
 

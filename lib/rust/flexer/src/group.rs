@@ -204,7 +204,7 @@ impl AutomatonData {
     }
 
     /// Get the callback code for
-    pub fn callback_for_state(&self, sources:Vec<nfa::State>) -> Result<String,CallbackError> {
+    pub fn callback_for_state(&self, sources:&Vec<nfa::State>) -> Result<String,CallbackError> {
         let callbacks = sources.iter().flat_map(|state| self.callback_code.get(&state.id())).collect_vec();
         if callbacks.len() > 1 {
             Err(CallbackError::DuplicateCallbacks)
@@ -217,7 +217,7 @@ impl AutomatonData {
 }
 
 /// Errors that can occur when querying callbacks for a DFA state.
-#[derive(Copy,Clone,Debug,Eq,PartialEq)]
+#[derive(Copy,Clone,Debug,Display,Eq,PartialEq)]
 pub enum CallbackError {
     /// There are no available callbacks for this state.
     NoCallback,

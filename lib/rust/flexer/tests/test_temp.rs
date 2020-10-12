@@ -284,5 +284,6 @@ impl flexer::State for TestState {
 #[test]
 fn execute_specialize() {
     let lexer = TestLexer::define();
-    lexer.specialize();
+    let result = lexer.specialize();
+    assert!(result.is_ok());
 }
