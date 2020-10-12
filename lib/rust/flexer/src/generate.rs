@@ -235,116 +235,119 @@ pub fn match_for_transition<S:BuildHasher>
 , data         : &AutomatonData
 , has_overlaps : &mut HashMap<usize,bool,S>
 ) -> Result<Expr,GenError> {
+    let source_states = dfa.sources.get(state_ix);
+    // println!("NFA States: {:?}",data.states());
+    // println!("NFA Names: {:?}",data.names());
+    // println!("NFA Callbacks: {:?}",data.callbacks());
+    // println!("DFA Sources: {:?}",dfa.sources);
+    // println!("{}",state_ix);
+    // println!("{:?}",source_states);
     let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
-    println!("{:?}",data.states());
-    println!("{:?}",data.names());
-    println!("{:?}",data.callbacks());
-    println!("{:?}",dfa.sources);
-    // let state             = dfa.callbacks.get(state_ix).expect("Internal error.").clone();
-    // let mut trigger_state = dfa.links[(state_ix,0)];
-    // let mut range_start   = u32::min_value();
-    // let divisions:Vec<_>  = dfa.alphabet_segmentation.divisions_as_vec();
-    // let mut branches      = Vec::with_capacity(divisions.len());
-    // for division in divisions.into_iter() {
-    //     let ix                = division.position;
-    //     let sym               = division.symbol;
-    //     let new_trigger_state = dfa.links[(state_ix,ix)];
-    //     if new_trigger_state != trigger_state {
-    //         let range_end             = if sym.value != 0 { sym.value - 1 } else { sym.value };
-    //         let current_trigger_state = trigger_state;
-    //         let current_range_start   = range_start;
-    //         trigger_state             = new_trigger_state;
-    //         range_start               = sym.value;
-    //         let body =
-    //             branch_body(dfa,current_trigger_state,&state,has_overlaps,overlaps)?;
-    //         branches.push(Branch::new(Some(current_range_start..=range_end),body))
-    //     } else {}
-    // }
-    // let catch_all_branch_body = branch_body(dfa,trigger_state,&state,has_overlaps,overlaps)?;
-    // let catch_all_branch      = Branch::new(None,catch_all_branch_body);
-    // branches.push(catch_all_branch);
-    // let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
-    // let mut match_expr:ExprMatch = parse_quote! {
-    //     match u32::from(reader.character()) {
-    //         #(#arms)*
-    //     }
-    // };
-    // match_expr.arms = arms;
-    // Ok(Expr::Match(match_expr))
-    unimplemented!()
+    let mut trigger_state = dfa.links[(state_ix,0)];
+    let mut range_start   = enso_automata::symbol::SymbolIndex::min_value();
+    let divisions         = dfa.alphabet.division_map.clone();
+    let mut branches      = Vec::with_capacity(divisions.len());
+    for (symbol, position) in divisions.into_iter() {
+        let ix                = position;
+        let sym               = symbol;
+        let new_trigger_state = dfa.links[(state_ix,ix)];
+        if new_trigger_state != trigger_state {
+            let range_end             = if sym.index != 0 { sym.index - 1 } else { sym.index };
+            let current_trigger_state = trigger_state;
+            let current_range_start   = range_start;
+            trigger_state             = new_trigger_state;
+            range_start               = sym.index;
+            let body =
+                branch_body(dfa,current_trigger_state,state_ix,has_overlaps,overlaps)?;
+            branches.push(Branch::new(Some(current_range_start..=range_end),body))
+        } else {}
+    }
+    let catch_all_branch_body = branch_body(dfa,trigger_state,state_ix,has_overlaps,overlaps)?;
+    let catch_all_branch      = Branch::new(None,catch_all_branch_body);
+    branches.push(catch_all_branch);
+    let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
+    let mut match_expr:ExprMatch = parse_quote! {
+        match u32::from(reader.character()) {
+            #(#arms)*
+        }
+    };
+    match_expr.arms = arms;
+    Ok(Expr::Match(match_expr))
 }
 
 /// Generate the branch body for a transition in the DFA.
 pub fn branch_body<S:BuildHasher>
 ( dfa           : &mut Dfa
 , target_state  : State<Dfa>
-, maybe_state   : &Option<RuleExecutable>
+, state_ix      : usize
 , has_overlaps  : &mut HashMap<usize,bool,S>
 , rules_overlap : bool
 ) -> Result<Block,GenError> {
+    let sources = dfa.sources.get(state_ix).expect("Internal error.");
     if target_state == State::<Dfa>::INVALID {
-        match maybe_state {
-            None => {
-                Ok(parse_quote! {{
-                    StageStatus::ExitFail
-                }})
-            },
-            Some(rule_exec) => {
-                let rule:Expr = match parse_str(rule_exec.code.as_str()) {
-                    Ok(rule) => rule,
-                    Err(_)   => return Err(GenError::BadExpression(rule_exec.code.clone()))
-                };
-                if rules_overlap {
-                    Ok(parse_quote! {{
-                        let rule_bookmark    = self.bookmarks.rule_bookmark;
-                        let matched_bookmark = self.bookmarks.matched_bookmark;
-                        self.bookmarks.rewind(rule_bookmark,reader);
-                        self.current_match = reader.pop_result();
-                        self.#rule(reader);
-                        self.bookmarks.bookmark(matched_bookmark,reader);
-                        StageStatus::ExitSuccess
-                    }})
-                } else {
-                    Ok(parse_quote! {{
-                        let matched_bookmark = self.bookmarks.matched_bookmark;
-                        self.current_match   = reader.pop_result();
-                        self.#rule(reader);
-                        self.bookmarks.bookmark(matched_bookmark,reader);
-                        StageStatus::ExitSuccess
-                    }})
-                }
-            }
-        }
+    //     match maybe_state {
+    //         None => {
+    //             Ok(parse_quote! {{
+    //                 StageStatus::ExitFail
+    //             }})
+    //         },
+    //         Some(rule_exec) => {
+    //             let rule:Expr = match parse_str(rule_exec.code.as_str()) {
+    //                 Ok(rule) => rule,
+    //                 Err(_)   => return Err(GenError::BadExpression(rule_exec.code.clone()))
+    //             };
+    //             if rules_overlap {
+    //                 Ok(parse_quote! {{
+    //                     let rule_bookmark    = self.bookmarks.rule_bookmark;
+    //                     let matched_bookmark = self.bookmarks.matched_bookmark;
+    //                     self.bookmarks.rewind(rule_bookmark,reader);
+    //                     self.current_match = reader.pop_result();
+    //                     self.#rule(reader);
+    //                     self.bookmarks.bookmark(matched_bookmark,reader);
+    //                     StageStatus::ExitSuccess
+    //                 }})
+    //             } else {
+    //                 Ok(parse_quote! {{
+    //                     let matched_bookmark = self.bookmarks.matched_bookmark;
+    //                     self.current_match   = reader.pop_result();
+    //                     self.#rule(reader);
+    //                     self.bookmarks.bookmark(matched_bookmark,reader);
+    //                     StageStatus::ExitSuccess
+    //                 }})
+    //             }
+    //         }
+    //     }
     } else {
-        let target_state_has_no_rule = unimplemented!();
-        // let target_state_has_no_rule = match maybe_state {
-        //     Some(state) => if !dfa.has_rule_for(target_state) {
-        //         // dfa.callbacks[target_state.id] = Some(state.clone());
-        //         // has_overlaps.insert(target_state.id,true);
-        //         // true
-        //     } else {
-        //         false
-        //     },
-        //     None => false
-        // };
-
-        let state_id = Literal::usize_unsuffixed(target_state.id());
-        let ret:Expr = parse_quote! {
-            StageStatus::ContinueWith(#state_id.into())
-        };
-
-        if target_state_has_no_rule && !rules_overlap {
-            Ok(parse_quote! {{
-                let rule_bookmark = self.bookmarks.rule_bookmark;
-                self.bookmarks.bookmark(rule_bookmark,reader);
-                #ret
-            }})
-        } else {
-            Ok(parse_quote! {{
-                #ret
-            }})
-        }
+    //     let target_state_has_no_rule = unimplemented!();
+    //     // let target_state_has_no_rule = match maybe_state {
+    //     //     Some(state) => if !dfa.has_rule_for(target_state) {
+    //     //         // dfa.callbacks[target_state.id] = Some(state.clone());
+    //     //         // has_overlaps.insert(target_state.id,true);
+    //     //         // true
+    //     //     } else {
+    //     //         false
+    //     //     },
+    //     //     None => false
+    //     // };
+    //
+    //     let state_id = Literal::usize_unsuffixed(target_state.id());
+    //     let ret:Expr = parse_quote! {
+    //         StageStatus::ContinueWith(#state_id.into())
+    //     };
+    //
+    //     if target_state_has_no_rule && !rules_overlap {
+    //         Ok(parse_quote! {{
+    //             let rule_bookmark = self.bookmarks.rule_bookmark;
+    //             self.bookmarks.bookmark(rule_bookmark,reader);
+    //             #ret
+    //         }})
+    //     } else {
+    //         Ok(parse_quote! {{
+    //             #ret
+    //         }})
+    //     }
     }
+    unimplemented!()
 }
 
 /// Generate the dispatch function for a given lexer state.
@@ -491,13 +494,13 @@ impl Display for GenError {
 #[allow(missing_docs)]
 #[derive(Clone,Debug,PartialEq)]
 struct Branch {
-    pub range:Option<RangeInclusive<u32>>,
+    pub range:Option<RangeInclusive<enso_automata::symbol::SymbolIndex>>,
     pub body:Block
 }
 
 impl Branch {
     /// Create a new branch, from the provided `range` and with `body` as the code it executes.
-    pub fn new(range:Option<RangeInclusive<u32>>, body:Block) -> Branch {
+    pub fn new(range:Option<RangeInclusive<enso_automata::symbol::SymbolIndex>>, body:Block) -> Branch {
         Branch {range,body}
     }
 }
@@ -510,8 +513,8 @@ impl Into<Arm> for Branch {
         let body = self.body;
         match self.range {
             Some(range) => {
-                let range_start = Literal::u32_unsuffixed(*range.start());
-                let range_end   = Literal::u32_unsuffixed(*range.end());
+                let range_start = Literal::u64_unsuffixed(*range.start());
+                let range_end   = Literal::u64_unsuffixed(*range.end());
                 if range.start() == range.end() {
                     parse_quote! {
                         #range_start => #body,

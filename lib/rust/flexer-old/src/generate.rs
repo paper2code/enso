@@ -232,6 +232,10 @@ pub fn match_for_transition<S:BuildHasher>
 ) -> Result<Expr,GenError> {
     let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
     let state             = dfa.callbacks.get(state_ix).expect("Internal error.").clone();
+    println!("{}",state_ix);
+    println!("{:?}",dfa.callbacks);
+    println!("{:?}",state);
+    unimplemented!();
     let mut trigger_state = dfa.links[(state_ix,0)];
     let mut range_start   = u32::min_value();
     let divisions:Vec<_>  = dfa.alphabet_segmentation.divisions_as_vec();

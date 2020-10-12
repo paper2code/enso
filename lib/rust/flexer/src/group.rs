@@ -110,6 +110,7 @@ impl Registry {
         let group     = self.group(group_id);
         let mut nfa   = AutomatonData::default();
         let start     = nfa.automaton.start;
+        nfa.add_state(start);
         let build     = |rule:&Rule| nfa.new_pattern(start,&rule.pattern);
         let rules     = self.rules_for(group.id);
         let callbacks = rules.iter().map(|r| r.callback.clone()).collect_vec();
@@ -121,6 +122,7 @@ impl Registry {
             nfa.set_code(state.id(),callbacks.get(ix).unwrap().clone());
             nfa.connect(state,end);
         }
+        nfa.add_state(end);
         nfa
     }
 
@@ -200,6 +202,27 @@ impl AutomatonData {
     pub fn automaton(&self) -> &Nfa {
         &self.automaton
     }
+
+    /// Get the callback code for
+    pub fn callback_for_state(&self, sources:Vec<nfa::State>) -> Result<String,CallbackError> {
+        let callbacks = sources.iter().flat_map(|state| self.callback_code.get(&state.id())).collect_vec();
+        if callbacks.len() > 1 {
+            Err(CallbackError::DuplicateCallbacks)
+        } else if callbacks.len() == 0 {
+            Err(CallbackError::NoCallback)
+        } else {
+            Ok(callbacks.first().unwrap().to_string())
+        }
+    }
+}
+
+/// Errors that can occur when querying callbacks for a DFA state.
+#[derive(Copy,Clone,Debug,Eq,PartialEq)]
+pub enum CallbackError {
+    /// There are no available callbacks for this state.
+    NoCallback,
+    /// There is more than one callback available for this state.
+    DuplicateCallbacks,
 }
 
 
