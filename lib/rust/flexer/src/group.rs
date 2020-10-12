@@ -204,15 +204,16 @@ impl AutomatonData {
     }
 
     /// Get the callback code for
-    pub fn callback_for_state(&self, sources:&Vec<nfa::State>) -> Result<String,CallbackError> {
+    pub fn callback_for_state(&self, sources:&Vec<nfa::State>) -> Option<String> {
         let callbacks = sources.iter().flat_map(|state| self.callback_code.get(&state.id())).collect_vec();
-        if callbacks.len() > 1 {
-            Err(CallbackError::DuplicateCallbacks)
-        } else if callbacks.len() == 0 {
-            Err(CallbackError::NoCallback)
-        } else {
-            Ok(callbacks.first().unwrap().to_string())
-        }
+        (callbacks.len() == 0).and_option(callbacks.first().map(|x| (*x).clone()))
+        // if callbacks.len() > 1 {
+        //     panic!("Multiple callbacks for state.")
+        // } else if callbacks.len() == 0 {
+        //     None
+        // } else {
+        //     Some(callbacks.first().unwrap().to_string())
+        // }
     }
 }
 

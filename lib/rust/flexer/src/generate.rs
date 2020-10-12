@@ -6,13 +6,10 @@ use quote::*;
 use syn::*;
 
 use crate::automata::dfa::Dfa;
-use crate::automata::nfa::Nfa;
 use crate::automata::nfa;
-use crate::automata::dfa;
-use crate::automata::dfa::RuleExecutable;
-// use crate::automata::state::Identifier;
 use crate::automata::state::State;
-use crate::group::{Group, AutomatonData, CallbackError};
+use crate::group::Group;
+use crate::group::AutomatonData;
 use crate::group;
 
 use enso_macro_utils::repr;
@@ -183,7 +180,7 @@ pub fn automaton_for_group
 ( group    : &Group
 , registry : &group::Registry
 ) -> Result<Vec<ImplItem>,GenError> {
-    let nfa       = registry.to_nfa_from(group.id);
+    let mut nfa       = registry.to_nfa_from(group.id);
     let mut rules = Vec::with_capacity(nfa.states().len());
     for state in nfa.states().iter() {
         if nfa.name(state.id()).is_some() {
@@ -192,14 +189,14 @@ pub fn automaton_for_group
     }
     let mut dfa             = Dfa::from(nfa.automaton());
     let dispatch_for_dfa    = dispatch_in_state(&dfa,group.id.into())?;
-    let mut dfa_transitions = transitions_for_dfa(&mut dfa,&nfa,group.id.into())?;
+    let mut dfa_transitions = transitions_for_dfa(&mut dfa,&mut nfa,group.id.into())?;
     dfa_transitions.push(dispatch_for_dfa);
     dfa_transitions.extend(rules);
     Ok(dfa_transitions)
 }
 
 /// Generate a set of transition functions for the provided `dfa`, with identifier `id`.
-pub fn transitions_for_dfa(dfa:&mut Dfa, data:&AutomatonData, id:usize) -> Result<Vec<ImplItem>,GenError> {
+pub fn transitions_for_dfa(dfa:&mut Dfa, data:&mut AutomatonData, id:usize) -> Result<Vec<ImplItem>,GenError> {
     let mut state_has_overlapping_rules:HashMap<usize,bool> = HashMap::new();
     state_has_overlapping_rules.insert(0,false);
     let state_names:Vec<_> = dfa.links.row_indices().map(|ix| (ix, name_for_step(id, ix))).collect();
@@ -215,7 +212,7 @@ pub fn transitions_for_dfa(dfa:&mut Dfa, data:&AutomatonData, id:usize) -> Resul
 pub fn transition_for_dfa<S:BuildHasher>
 ( dfa             : &mut Dfa
 , transition_name : Ident
-, data            : &AutomatonData
+, data            : &mut AutomatonData
 , state_ix        : usize
 , has_overlaps    : &mut HashMap<usize,bool,S>
 ) -> Result<ImplItem,GenError> {
@@ -232,16 +229,9 @@ pub fn transition_for_dfa<S:BuildHasher>
 pub fn match_for_transition<S:BuildHasher>
 ( dfa          : &mut Dfa
 , state_ix     : usize
-, data         : &AutomatonData
+, data         : &mut AutomatonData
 , has_overlaps : &mut HashMap<usize,bool,S>
 ) -> Result<Expr,GenError> {
-    let source_states = dfa.sources.get(state_ix);
-    // println!("NFA States: {:?}",data.states());
-    // println!("NFA Names: {:?}",data.names());
-    // println!("NFA Callbacks: {:?}",data.callbacks());
-    // println!("DFA Sources: {:?}",dfa.sources);
-    // println!("{}",state_ix);
-    // println!("{:?}",source_states);
     let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
     let mut trigger_state = dfa.links[(state_ix,0)];
     let mut range_start   = enso_automata::symbol::SymbolIndex::min_value();
@@ -280,7 +270,7 @@ pub fn branch_body<S:BuildHasher>
 ( dfa           : &mut Dfa
 , target_state  : State<Dfa>
 , state_ix      : usize
-, data          : &AutomatonData
+, data          : &mut AutomatonData
 , has_overlaps  : &mut HashMap<usize,bool,S>
 , rules_overlap : bool
 ) -> Result<Block,GenError> {
@@ -288,13 +278,12 @@ pub fn branch_body<S:BuildHasher>
     let callback_for_sources = data.callback_for_state(sources);
     if target_state == State::<Dfa>::INVALID {
         match callback_for_sources {
-            Err(CallbackError::NoCallback) => {
+            None => {
                 Ok(parse_quote! {{
                     StageStatus::ExitFail
                 }})
             },
-            Err(err) => Err(err.into()),
-            Ok(rule) => {
+            Some(rule) => {
                 let rule:Expr = match parse_str(rule.as_str()) {
                     Ok(rule) => rule,
                     Err(_) => return Err(GenError::BadExpression(rule))
@@ -305,7 +294,7 @@ pub fn branch_body<S:BuildHasher>
                         let matched_bookmark = self.bookmarks.matched_bookmark;
                         self.bookmarks.rewind(rule_bookmark,reader);
                         self.current_match = reader.pop_result();
-                        self.#rule(reader);
+                        #rule;
                         self.bookmarks.bookmark(matched_bookmark,reader);
                         StageStatus::ExitSuccess
                     }})
@@ -313,7 +302,7 @@ pub fn branch_body<S:BuildHasher>
                     Ok(parse_quote! {{
                         let matched_bookmark = self.bookmarks.matched_bookmark;
                         self.current_match   = reader.pop_result();
-                        self.#rule(reader);
+                        #rule;
                         self.bookmarks.bookmark(matched_bookmark,reader);
                         StageStatus::ExitSuccess
                     }})
@@ -321,35 +310,33 @@ pub fn branch_body<S:BuildHasher>
             }
         }
     } else {
-    //     let target_state_has_no_rule = unimplemented!();
-    //     // let target_state_has_no_rule = match maybe_state {
-    //     //     Some(state) => if !dfa.has_rule_for(target_state) {
-    //     //         // dfa.callbacks[target_state.id] = Some(state.clone());
-    //     //         // has_overlaps.insert(target_state.id,true);
-    //     //         // true
-    //     //     } else {
-    //     //         false
-    //     //     },
-    //     //     None => false
-    //     // };
-    //
-    //     let state_id = Literal::usize_unsuffixed(target_state.id());
-    //     let ret:Expr = parse_quote! {
-    //         StageStatus::ContinueWith(#state_id.into())
-    //     };
-    //
-    //     if target_state_has_no_rule && !rules_overlap {
-    //         Ok(parse_quote! {{
-    //             let rule_bookmark = self.bookmarks.rule_bookmark;
-    //             self.bookmarks.bookmark(rule_bookmark,reader);
-    //             #ret
-    //         }})
-    //     } else {
-    //         Ok(parse_quote! {{
-    //             #ret
-    //         }})
-    //     }
-        unimplemented!()
+        let target_state_has_no_rule = match callback_for_sources {
+            Some(callback) => if 1 == 1 {
+                data.set_code(target_state.id(),callback);
+                has_overlaps.insert(target_state.id(),true);
+                true
+            } else {
+                false
+            },
+            None => false
+        };
+
+        let state_id = Literal::usize_unsuffixed(target_state.id());
+        let ret:Expr = parse_quote! {
+            StageStatus::ContinueWith(#state_id.into())
+        };
+
+        if target_state_has_no_rule && !rules_overlap {
+            Ok(parse_quote! {{
+                let rule_bookmark = self.bookmarks.rule_bookmark;
+                self.bookmarks.bookmark(rule_bookmark,reader);
+                #ret
+            }})
+        } else {
+            Ok(parse_quote! {{
+                #ret
+            }})
+        }
     }
 }
 
@@ -468,8 +455,6 @@ pub enum GenError {
     BadLiteral(String),
     /// The provided string is not a valid rust path.
     BadPath(String),
-    /// The provided callback isn't valid.
-    BadCallback(group::CallbackError),
 }
 
 
@@ -485,14 +470,7 @@ impl Display for GenError {
             GenError::BadExpression(str) => write!(f,"`{}` is not a valid rust expression.",str),
             GenError::BadLiteral(str)    => write!(f,"`{}` is not a valid rust literal.",str),
             GenError::BadPath(str)       => write!(f,"`{}` is not a valid rust path.",str),
-            GenError::BadCallback(err)   => write!(f,"`{}`",err),
         }
-    }
-}
-
-impl From<group::CallbackError> for GenError {
-    fn from(err: CallbackError) -> Self {
-        GenError::BadCallback(err)
     }
 }
 

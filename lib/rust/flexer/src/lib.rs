@@ -8,7 +8,6 @@
 #![warn(unsafe_code)]
 #![warn(unused_import_braces)]
 
-/*
 //! This module exports the API for defining a simple lexer based on a deterministic finite state
 //! automaton.
 //!
@@ -1016,7 +1015,6 @@
 //!
 //! The flexer allows its clients to define highly optimised lexer implementations that are capable
 //! of lexing languages of a high complexity.
- */
 
 use crate::prelude::*;
 use prelude::logger::*;
