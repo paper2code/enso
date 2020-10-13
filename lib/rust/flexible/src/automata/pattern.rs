@@ -32,13 +32,15 @@ pub enum Pattern {
     Many(Box<Pattern>),
     /// The pattern that always triggers.
     Always,
+    /// The pattern that never triggers and does not consume any input.
+    Never,
 }
 
 impl Pattern {
 
     /// A pattern that never triggers.
     pub fn never() -> Self {
-        Pattern::symbol(Symbol::INVALID_SYMBOL)
+        Pattern::Never
     }
 
     /// A pattern that always triggers

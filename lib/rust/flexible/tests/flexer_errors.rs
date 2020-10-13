@@ -25,14 +25,14 @@
 //! `lexer_generated_api_test` file. This is to present the full view of what each portion of the
 //! process looks like.
 
-use flexer::prelude::*;
+use flexible::prelude::*;
 
-use flexer::*;
-use flexer;
-use flexer::automata::pattern::Pattern;
-use flexer::group::Registry;
-use flexer::prelude::logger::Disabled;
-use flexer::prelude::reader::BookmarkManager;
+use flexible::*;
+use flexible;
+use flexible::automata::pattern::Pattern;
+use flexible::group::Registry;
+use flexible::prelude::logger::Disabled;
+use flexible::prelude::reader::BookmarkManager;
 
 
 
@@ -129,40 +129,85 @@ impl TestLexer {
 #[allow(dead_code,missing_docs)]
 impl TestLexer {
     fn on_first_word<R:LazyReader>(&mut self, _reader:&mut R) {
-        unimplemented!()
+        let str = self.current_match.clone();
+        let ast = Token::Word(str);
+        self.output.push(ast);
+        let id = self.seen_first_word_state;
+        self.push_state(id);
     }
 
     fn on_err_suffix_first_word<R:LazyReader>(&mut self, _reader:&mut R) {
-        unimplemented!()
+        let ast = Token::Unrecognized(self.current_match.clone());
+        self.output.push(ast);
     }
 
-    fn on_no_err_suffix_first_word<R:LazyReader>(&mut self, _reader:&mut R) {
-        unimplemented!()
-    }
+    fn on_no_err_suffix_first_word<R:LazyReader>(&mut self, _reader:&mut R) {}
 
     fn rules_in_root(lexer:&mut TestLexer) {
-        let a  = c!('a');
-        let b  = c!('b');
-        let ab = &a >> &b;
+        let a_word        = Pattern::char('a').many1();
+        let b_word        = Pattern::char('b').many1();
+        let any           = Pattern::any();
+        let end           = Pattern::eof();
 
         let root_group_id = lexer.initial_state;
         let root_group    = lexer.groups_mut().group_mut(root_group_id);
 
-        root_group.create_rule(&a,"self.on_first_word(reader)");
-        root_group.create_rule(&ab,"self.on_first_word(reader)");
+        root_group.create_rule(&a_word,"self.on_first_word(reader)");
+        root_group.create_rule(&b_word,"self.on_first_word(reader)");
+        root_group.create_rule(&end,   "self.on_no_err_suffix_first_word(reader)");
+        root_group.create_rule(&any,   "self.on_err_suffix_first_word(reader)");
+    }
+}
+
+/// Rules for the "seen first word" state.
+#[allow(dead_code,missing_docs)]
+impl TestLexer {
+    fn on_spaced_word<R:LazyReader>(&mut self, _reader:&mut R) {
+        let str = self.current_match.clone();
+        let ast = Token::Word(String::from(str.trim()));
+        self.output.push(ast);
+    }
+
+    fn on_err_suffix<R:LazyReader>(&mut self, reader:&mut R) {
+        self.on_err_suffix_first_word(reader);
+        self.pop_state();
+    }
+
+    fn on_no_err_suffix<R:LazyReader>(&mut self, reader:&mut R) {
+        self.on_no_err_suffix_first_word(reader);
+        self.pop_state();
+    }
+
+    fn rules_in_seen_first_word(lexer:&mut TestLexer) {
+        let a_word        = Pattern::char('a').many1();
+        let b_word        = Pattern::char('b').many1();
+        let space         = Pattern::char(' ');
+        let spaced_a_word = &space >> &a_word;
+        let spaced_b_word = &space >> &b_word;
+        let any           = Pattern::any();
+        let end           = Pattern::eof();
+
+        let seen_first_word_group_id = lexer.seen_first_word_state;
+        let seen_first_word_group    = lexer.groups_mut().group_mut(seen_first_word_group_id);
+
+        seen_first_word_group.create_rule(&spaced_a_word,"self.on_spaced_word(reader)");
+        seen_first_word_group.create_rule(&spaced_b_word,"self.on_spaced_word(reader)");
+        seen_first_word_group.create_rule(&end,          "self.on_no_err_suffix(reader)");
+        seen_first_word_group.create_rule(&any,          "self.on_err_suffix(reader)");
     }
 }
 
 
-
 // === Trait Impls ===
 
-impl flexer::Definition for TestLexer {
+impl flexible::Definition for TestLexer {
     fn define() -> Self {
+        println!("Defining Old");
+
         let mut lexer = TestLexer::new();
 
-        // TestLexer::rules_in_seen_first_word(&mut lexer);
-        TestLexer::rules_in_root(&mut lexer);
+        // TestLexer::rules_in_root(&mut lexer);
+        TestLexer::rules_in_seen_first_word(&mut lexer);
 
         lexer
     }
@@ -195,6 +240,8 @@ pub struct TestState {
     lexer_states:group::Registry,
     /// The initial state of the lexer.
     initial_state:group::Identifier,
+    /// The state entered when the first word has been seen.
+    seen_first_word_state:group::Identifier,
     /// The bookmarks for this lexer.
     bookmarks:BookmarkManager
 }
@@ -202,12 +249,13 @@ pub struct TestState {
 
 // === Trait Impls ===
 
-impl flexer::State for TestState {
+impl flexible::State for TestState {
     fn new(_logger:&impl AnyLogger) -> Self {
         let mut lexer_states      = group::Registry::default();
         let initial_state         = lexer_states.define_group("ROOT",None);
+        let seen_first_word_state = lexer_states.define_group("SEEN FIRST WORD",None);
         let bookmarks             = BookmarkManager::new();
-        Self{lexer_states,initial_state,bookmarks}
+        Self{lexer_states,initial_state,seen_first_word_state,bookmarks}
     }
 
     fn initial_state(&self) -> group::Identifier {
@@ -234,6 +282,7 @@ impl flexer::State for TestState {
         generate::specialize(self,"TestLexer","TokenStream")
     }
 }
+
 
 #[test]
 fn generate() {

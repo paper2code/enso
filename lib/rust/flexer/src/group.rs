@@ -210,10 +210,10 @@ impl AutomatonData {
         &self.automaton
     }
 
-    /// Get the callback code for
-    pub fn callback_for_state(&self, sources:&Vec<nfa::State>) -> Option<String> {
-        let callbacks = sources.iter().flat_map(|state| self.callback_code.get(&state.id())).collect_vec();
-        (callbacks.len() == 0).and_option(callbacks.first().map(|x| (*x).clone()))
+    /// Get the rule name for a the provided state.
+    pub fn rule_for_state(&self, sources:&Vec<nfa::State>) -> Option<String> {
+        let rules = sources.iter().flat_map(|state| self.transition_names.get(&state.id())).collect_vec();
+        (rules.len() == 1).and_option(rules.first().map(|x| (*x).clone()))
     }
 }
 

@@ -181,7 +181,9 @@ pub fn automaton_for_group
 ( group    : &Group
 , registry : &group::Registry
 ) -> Result<Vec<ImplItem>,GenError> {
+    println!("Group Rules: {}",registry.rules_for(group.id).len());
     let nfa       = registry.to_nfa_from(group.id);
+    println!("NFA States: {}",nfa.states.len());
     let mut rules = Vec::with_capacity(nfa.states.len());
     for (_, state) in nfa.states.iter().enumerate() {
         if state.name.is_some() {
@@ -189,6 +191,8 @@ pub fn automaton_for_group
         }
     }
     let mut dfa             = DFA::from(&nfa);
+    println!("DFA Rows: {}",dfa.links.rows());
+    println!("DFA Cols: {}",dfa.links.rows());
     let dispatch_for_dfa    = dispatch_in_state(&dfa,group.id.into())?;
     let mut dfa_transitions = transitions_for_dfa(&mut dfa,group.id.into())?;
     dfa_transitions.push(dispatch_for_dfa);
@@ -231,35 +235,36 @@ pub fn match_for_transition<S:BuildHasher>
 , state_ix     : usize
 , has_overlaps : &mut HashMap<usize,bool,S>
 ) -> Result<Expr,GenError> {
-    println!("MATCH ===================================================");
-    println!("Index: {}",state_ix);
+    // println!("MATCH ===================================================");
+    // println!("Index: {}",state_ix);
     let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
-    println!("Overlaps: {}",overlaps);
+    // println!("Overlaps: {}",overlaps);
     let state             = dfa.callbacks.get(state_ix).expect("Internal error.").clone();
+    // println!("Rule: {:?}",state);
     let mut trigger_state = dfa.links[(state_ix,0)];
     let mut range_start   = u32::min_value();
     let divisions:Vec<_>  = dfa.alphabet_segmentation.divisions_as_vec();
-    println!("Num Divisions: {}",divisions.len());
+    // println!("Num Divisions: {}",divisions.len());
     let mut branches      = Vec::with_capacity(divisions.len());
     for division in divisions.into_iter() {
         let ix                = division.position;
         let sym               = division.symbol;
-        println!("SYMBOL =============================");
-        println!("Symbol Index: {}",ix);
-        println!("Symbol Value: {}",sym.value);
+        // println!("SYMBOL =============================");
+        // println!("Symbol Index: {}",ix);
+        // println!("Symbol Value: {}",sym.value);
         let new_trigger_state = dfa.links[(state_ix,ix)];
         if new_trigger_state != trigger_state {
-            println!("Generate Branch");
+            // println!("Generate Branch");
             let range_end             = if sym.value != 0 { sym.value - 1 } else { sym.value };
             let current_trigger_state = trigger_state;
             let current_range_start   = range_start;
             trigger_state             = new_trigger_state;
             range_start               = sym.value;
-            println!("Range End: {:?}",range_end);
-            println!("Current Trigger State: {:?}",current_trigger_state);
-            println!("Current Range Start: {:?}",current_range_start);
-            println!("Trigger State: {:?}",trigger_state);
-            println!("Range Start: {:?}",range_start);
+            // println!("Range End: {:?}",range_end);
+            // println!("Current Trigger State: {:?}",current_trigger_state);
+            // println!("Current Range Start: {:?}",current_range_start);
+            // println!("Trigger State: {:?}",trigger_state);
+            // println!("Range Start: {:?}",range_start);
             let body =
                 branch_body(dfa,current_trigger_state,&state,has_overlaps,overlaps)?;
             branches.push(Branch::new(Some(current_range_start..=range_end),body))
@@ -268,7 +273,7 @@ pub fn match_for_transition<S:BuildHasher>
     let catch_all_branch_body = branch_body(dfa,trigger_state,&state,has_overlaps,overlaps)?;
     let catch_all_branch      = Branch::new(None,catch_all_branch_body);
     branches.push(catch_all_branch);
-    println!("Branches Length: {}",branches.len());
+    // println!("Branches Length: {}",branches.len());
     let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
     let mut match_expr:ExprMatch = parse_quote! {
         match u32::from(reader.character()) {
@@ -287,19 +292,24 @@ pub fn branch_body<S:BuildHasher>
 , has_overlaps  : &mut HashMap<usize,bool,S>
 , rules_overlap : bool
 ) -> Result<Block,GenError> {
+    // println!("Callback: {:?}",maybe_state);
     if target_state == Identifier::INVALID {
+        // println!("Target State Invalid");
         match maybe_state {
             None => {
+                // println!("No Callback");
                 Ok(parse_quote! {{
                     StageStatus::ExitFail
                 }})
             },
             Some(rule_exec) => {
+                // println!("Callback");
                 let rule:Expr = match parse_str(rule_exec.code.as_str()) {
                     Ok(rule) => rule,
                     Err(_)   => return Err(GenError::BadExpression(rule_exec.code.clone()))
                 };
                 if rules_overlap {
+                    // println!("Overlapping");
                     Ok(parse_quote! {{
                         let rule_bookmark    = self.bookmarks.rule_bookmark;
                         let matched_bookmark = self.bookmarks.matched_bookmark;
@@ -310,6 +320,7 @@ pub fn branch_body<S:BuildHasher>
                         StageStatus::ExitSuccess
                     }})
                 } else {
+                    // println!("Not Overlapping");
                     Ok(parse_quote! {{
                         let matched_bookmark = self.bookmarks.matched_bookmark;
                         self.current_match   = reader.pop_result();
@@ -321,6 +332,7 @@ pub fn branch_body<S:BuildHasher>
             }
         }
     } else {
+        // println!("Target State Valid");
         let target_state_has_no_rule = match maybe_state {
             Some(state) => if !dfa.has_rule_for(target_state) {
                 dfa.callbacks[target_state.id] = Some(state.clone());
@@ -338,12 +350,14 @@ pub fn branch_body<S:BuildHasher>
         };
 
         if target_state_has_no_rule && !rules_overlap {
+            // println!("Target State No Rule and No Overlaps)");
             Ok(parse_quote! {{
                 let rule_bookmark = self.bookmarks.rule_bookmark;
                 self.bookmarks.bookmark(rule_bookmark,reader);
                 #ret
             }})
         } else {
+            // println!("Has Rule");
             Ok(parse_quote! {{
                 #ret
             }})
