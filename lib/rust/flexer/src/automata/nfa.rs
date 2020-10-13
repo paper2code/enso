@@ -86,37 +86,35 @@ impl NFA {
     pub fn new_pattern(&mut self, source:state::Identifier, pattern:&Pattern) -> state::Identifier {
         let current = self.new_state();
         self.connect(source,current);
-        let state = match pattern {
+        match pattern {
             Pattern::Range(range) => {
                 let state = self.new_state();
-                self.connect_via(current, state, range);
+                self.connect_via(current,state,range);
                 state
             },
             Pattern::Many(body) => {
                 let s1 = self.new_state();
-                let s2 = self.new_pattern(s1, body);
+                let s2 = self.new_pattern(s1,body);
                 let s3 = self.new_state();
-                self.connect(current, s1);
-                self.connect(current, s3);
-                self.connect(s2, s3);
-                self.connect(s3, s1);
+                self.connect(current,s1);
+                self.connect(current,s3);
+                self.connect(s2,s3);
+                self.connect(s3,s1);
                 s3
             },
             Pattern::Seq(patterns) => {
-                patterns.iter().fold(current, |s, pat| self.new_pattern(s, pat))
+                patterns.iter().fold(current,|s,pat| self.new_pattern(s,pat))
             },
             Pattern::Or(patterns) => {
-                let states = patterns.iter().map(|pat| self.new_pattern(current, pat)).collect_vec();
-                let end = self.new_state();
+                let states = patterns.iter().map(|pat| self.new_pattern(current,pat)).collect_vec();
+                let end    = self.new_state();
                 for state in states {
-                    self.connect(state, end);
+                    self.connect(state,end);
                 }
                 end
             },
             Pattern::Always => current,
-            Pattern::Never => self.new_state(),
-        };
-        state
+        }
     }
 
     /// Merges states that are connected by epsilon links, using an algorithm based on the one shown

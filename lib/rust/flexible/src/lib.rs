@@ -91,9 +91,9 @@
 //! provide the flexer with an initial state, the state registry, and the bookmarks we use.
 //!
 //! ```
-//! use flexer::group;
-//! use flexer::prelude::reader::BookmarkManager;
-//! use flexer::State;
+//! use flexible::group;
+//! use flexible::prelude::reader::BookmarkManager;
+//! use flexible::State;
 //! #
 //! #
 //! # // === Token ===
@@ -151,12 +151,12 @@
 //! require special attention. We'll look at both below.
 //!
 //! ```
-//! use flexer::generate;
-//! # use flexer::group;
-//! use flexer::generate::GenError;
-//! use flexer::prelude::AnyLogger;
-//! # use flexer::prelude::reader::BookmarkManager;
-//! # use flexer::State;
+//! use flexible::generate;
+//! # use flexible::group;
+//! use flexible::generate::GenError;
+//! use flexible::prelude::AnyLogger;
+//! # use flexible::prelude::reader::BookmarkManager;
+//! # use flexible::State;
 //! #
 //! #
 //! # // === Token ===
@@ -195,7 +195,7 @@
 //! #     bookmarks:BookmarkManager
 //! # }
 //!
-//! impl flexer::State for LexerState {
+//! impl flexible::State for LexerState {
 //!     fn new(_logger:&impl AnyLogger) -> Self {
 //!         // Here we construct all of the elements needed for our lexer state. This function can
 //!         // contain arbitrarily complex logic and is only called once at initialization time.
@@ -248,14 +248,14 @@
 //!     your state and output types.
 //!
 //! ```
-//! use flexer::Flexer;
-//! # use flexer::generate;
-//! # use flexer::group;
-//! # use flexer::prelude::GenError;
-//! # use flexer::prelude::AnyLogger;
-//! use flexer::prelude::logger::Disabled;
-//! # use flexer::prelude::reader::BookmarkManager;
-//! # use flexer::State;
+//! use flexible::Flexer;
+//! # use flexible::generate;
+//! # use flexible::group;
+//! # use flexible::prelude::GenError;
+//! # use flexible::prelude::AnyLogger;
+//! use flexible::prelude::logger::Disabled;
+//! # use flexible::prelude::reader::BookmarkManager;
+//! # use flexible::State;
 //!
 //! type Logger = Disabled;
 //! #
@@ -296,7 +296,7 @@
 //! #     bookmarks:BookmarkManager
 //! # }
 //! #
-//! # impl flexer::State for LexerState {
+//! # impl flexible::State for LexerState {
 //! #     fn new(_logger:&impl AnyLogger) -> Self {
 //! #         // Here we construct all of the elements needed for our lexer state. This function can
 //! #         // contain arbitrarily complex logic and is only called once at initialization time.
@@ -350,14 +350,14 @@
 //! 2.  Implement a `new()` function for your lexer.
 //!
 //! ```
-//! # use flexer::Flexer;
-//! # use flexer::generate;
-//! # use flexer::group;
-//! # use flexer::prelude::AnyLogger;
-//! # use flexer::prelude::GenError;
-//! # use flexer::prelude::logger::Disabled;
-//! # use flexer::prelude::reader::BookmarkManager;
-//! # use flexer::State;
+//! # use flexible::Flexer;
+//! # use flexible::generate;
+//! # use flexible::group;
+//! # use flexible::prelude::AnyLogger;
+//! # use flexible::prelude::GenError;
+//! # use flexible::prelude::logger::Disabled;
+//! # use flexible::prelude::reader::BookmarkManager;
+//! # use flexible::State;
 //! #
 //! # type Logger = Disabled;
 //! #
@@ -398,7 +398,7 @@
 //! #     bookmarks:BookmarkManager
 //! # }
 //! #
-//! # impl flexer::State for LexerState {
+//! # impl flexible::State for LexerState {
 //! #     fn new(_logger:&impl AnyLogger) -> Self {
 //! #         // Here we construct all of the elements needed for our lexer state. This function can
 //! #         // contain arbitrarily complex logic and is only called once at initialization time.
@@ -455,14 +455,14 @@
 //! 3.  Define [`std::ops::Deref`] and [`std::ops::DerefMut`] for your lexer.
 //!
 //! ```
-//! # use flexer::Flexer;
-//! # use flexer::generate;
-//! # use flexer::group;
-//! # use flexer::prelude::AnyLogger;
-//! # use flexer::prelude::GenError;
-//! # use flexer::prelude::logger::Disabled;
-//! # use flexer::prelude::reader::BookmarkManager;
-//! # use flexer::State;
+//! # use flexible::Flexer;
+//! # use flexible::generate;
+//! # use flexible::group;
+//! # use flexible::prelude::AnyLogger;
+//! # use flexible::prelude::GenError;
+//! # use flexible::prelude::logger::Disabled;
+//! # use flexible::prelude::reader::BookmarkManager;
+//! # use flexible::State;
 //! use std::ops::Deref;
 //! use std::ops::DerefMut;
 //! #
@@ -505,7 +505,7 @@
 //! #     bookmarks:BookmarkManager
 //! # }
 //! #
-//! # impl flexer::State for LexerState {
+//! # impl flexible::State for LexerState {
 //! #     fn new(_logger:&impl AnyLogger) -> Self {
 //! #         // Here we construct all of the elements needed for our lexer state. This function can
 //! #         // contain arbitrarily complex logic and is only called once at initialization time.
@@ -586,17 +586,17 @@
 //! particularly the [`Definition::define()`] function.
 //!
 //! ```
-//! use flexer::automata::pattern::Pattern;
-//! # use flexer::Flexer;
-//! # use flexer::generate;
-//! use flexer::group::Registry;
-//! # use flexer::group;
-//! # use flexer::prelude::AnyLogger;
-//! # use flexer::prelude::GenError;
-//! # use flexer::prelude::logger::Disabled;
-//! # use flexer::prelude::reader::BookmarkManager;
-//! # use flexer::State;
-//! use flexer;
+//! use flexible::automata::pattern::Pattern;
+//! # use flexible::Flexer;
+//! # use flexible::generate;
+//! use flexible::group::Registry;
+//! # use flexible::group;
+//! # use flexible::prelude::AnyLogger;
+//! # use flexible::prelude::GenError;
+//! # use flexible::prelude::logger::Disabled;
+//! # use flexible::prelude::reader::BookmarkManager;
+//! # use flexible::State;
+//! use flexible;
 //! # use std::ops::Deref;
 //! # use std::ops::DerefMut;
 //! #
@@ -639,7 +639,7 @@
 //! #     bookmarks:BookmarkManager
 //! # }
 //! #
-//! # impl flexer::State for LexerState {
+//! # impl flexible::State for LexerState {
 //! #     fn new(_logger:&impl AnyLogger) -> Self {
 //! #         // Here we construct all of the elements needed for our lexer state. This function can
 //! #         // contain arbitrarily complex logic and is only called once at initialization time.
@@ -704,7 +704,7 @@
 //! #     }
 //! # }
 //!
-//! impl flexer::Definition for Lexer {
+//! impl flexible::Definition for Lexer {
 //!     fn define() -> Self {
 //!         // First we instantiate our lexer. Definitions take place _directly_ on the lexer, and
 //!         // manipulate runtime state.
@@ -773,18 +773,18 @@
 //! what we're going to do here.
 //!
 //! ```
-//! # use flexer::automata::pattern::Pattern;
-//! # use flexer::Flexer;
-//! # use flexer::generate;
-//! # use flexer::group::Registry;
-//! # use flexer::group;
-//! # use flexer::prelude::AnyLogger;
-//! use flexer::prelude::LazyReader;
-//! # use flexer::prelude::GenError;
-//! # use flexer::prelude::logger::Disabled;
-//! # use flexer::prelude::reader::BookmarkManager;
-//! # use flexer::State;
-//! # use flexer;
+//! # use flexible::automata::pattern::Pattern;
+//! # use flexible::Flexer;
+//! # use flexible::generate;
+//! # use flexible::group::Registry;
+//! # use flexible::group;
+//! # use flexible::prelude::AnyLogger;
+//! use flexible::prelude::LazyReader;
+//! # use flexible::prelude::GenError;
+//! # use flexible::prelude::logger::Disabled;
+//! # use flexible::prelude::reader::BookmarkManager;
+//! # use flexible::State;
+//! # use flexible;
 //! # use std::ops::Deref;
 //! # use std::ops::DerefMut;
 //! #
@@ -827,7 +827,7 @@
 //! #     bookmarks:BookmarkManager
 //! # }
 //! #
-//! # impl flexer::State for LexerState {
+//! # impl flexible::State for LexerState {
 //! #     fn new(_logger:&impl AnyLogger) -> Self {
 //! #         // Here we construct all of the elements needed for our lexer state. This function can
 //! #         // contain arbitrarily complex logic and is only called once at initialization time.
@@ -892,7 +892,7 @@
 //! #     }
 //! # }
 //! #
-//! # impl flexer::Definition for Lexer {
+//! # impl flexible::Definition for Lexer {
 //! #     fn define() -> Self {
 //! #         // First we instantiate our lexer. Definitions take place _directly_ on the lexer, and
 //! #         // manipulate runtime state.
@@ -981,7 +981,10 @@
 //! You'll note that all of these functions have a couple of things in common:
 //!
 //! 1.  They have a type parameter `R` that conforms to the [`prelude::LazyReader`] trait.
-//! 2.  They take an argument of type `R`, that is the reader over which the lexer is running.
+//! 2.  They take an argument of type `R`, that is the reader over which the lexer is running as the
+//!     _last_ argument to the function.
+//! 3.  Any additional arguments must be valid in the scope in which the specialisation rules are
+//!     going to be generated.
 //!
 //! Both of these, combined, allow the transition functions to manipulate the text being read by the
 //! lexer.
@@ -1020,8 +1023,9 @@ use crate::generate::GenError;
 use prelude::logger::AnyLogger;
 use prelude::reader::BookmarkManager;
 
-pub mod automata;
-pub mod data;
+pub use enso_automata as automata;
+pub use enso_automata::c;
+pub use enso_automata::l;
 pub mod generate;
 pub mod group;
 
@@ -1144,7 +1148,7 @@ where Definition : State,
         let result = self.state_stack.pop();
         match result {
             None        => (),
-            Some(ident) => debug!(self.logger,"Leave State: {self.groups().group(ident)}"),
+            Some(ident) => debug!(self.logger,"Leave State: {self.groups().group(ident).name}"),
         };
         self.logger.group_end();
         result
@@ -1177,6 +1181,11 @@ where Definition : State,
     /// Check if the lexer is currently in the state described by `state`.
     pub fn is_in_state(&self, state:group::Identifier) -> bool {
         self.current_state() == state
+    }
+
+    /// Check if the lexer is currently inside `state` at some point in the state stack.
+    pub fn is_inside_state(&self, state:group::Identifier) -> bool {
+        self.state_stack.iter().rev().any(|s| *s == state)
     }
 }
 

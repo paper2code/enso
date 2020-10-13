@@ -1023,9 +1023,8 @@ use crate::generate::GenError;
 use prelude::logger::AnyLogger;
 use prelude::reader::BookmarkManager;
 
-pub use enso_automata as automata;
-pub use enso_automata::c;
-pub use enso_automata::l;
+pub mod automata;
+pub mod data;
 pub mod generate;
 pub mod group;
 

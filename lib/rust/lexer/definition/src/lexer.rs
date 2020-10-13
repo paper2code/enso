@@ -1234,7 +1234,7 @@ impl EnsoLexer {
         let escape_u21           = l!("\\u{") >> &unicode_escape_char.many() >> l!("}");
         let escape_u32           = l!("\\U") >> Pattern::repeat_between(&unicode_escape_char,0,9);
         let escape_slash         = l!("\\\\");
-        let escape_invalid       = &backslash >> Pattern::not_symbol(Symbol::eof()).opt();
+        let escape_invalid       = &backslash >> Pattern::not_symbol(Symbol::EOF_CODE).opt();
         let escape_format_quote  = &backslash >> &format_quote;
         let escape_raw_quote     = &backslash >> &raw_quote;
         let escape_backtick      = &backslash >> &interpolate_quote;
@@ -1760,12 +1760,12 @@ impl flexer::Definition for EnsoLexer {
     fn define() -> Self {
         let mut lexer = EnsoLexer::new();
 
-        // EnsoLexer::add_comment_rules(&mut lexer);
+        EnsoLexer::add_comment_rules(&mut lexer);
         EnsoLexer::add_operator_rules(&mut lexer);
         EnsoLexer::add_identifier_rules(&mut lexer);
-        // EnsoLexer::add_number_rules(&mut lexer);
-        // EnsoLexer::add_text_rules(&mut lexer);
-        // EnsoLexer::add_block_rules(&mut lexer);
+        EnsoLexer::add_number_rules(&mut lexer);
+        EnsoLexer::add_text_rules(&mut lexer);
+        EnsoLexer::add_block_rules(&mut lexer);
         EnsoLexer::add_default_rules(&mut lexer);
 
         lexer

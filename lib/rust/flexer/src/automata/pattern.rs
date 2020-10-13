@@ -32,15 +32,13 @@ pub enum Pattern {
     Many(Box<Pattern>),
     /// The pattern that always triggers.
     Always,
-    /// The pattern that never triggers and does not consume any input.
-    Never,
 }
 
 impl Pattern {
 
     /// A pattern that never triggers.
     pub fn never() -> Self {
-        Pattern::Never
+        Pattern::symbol(Symbol::INVALID_SYMBOL)
     }
 
     /// A pattern that always triggers
@@ -95,12 +93,7 @@ impl Pattern {
 
     /// Pattern that triggers when sequence of characters given by `chars` is encountered.
     pub fn all_of(chars:&str) -> Self {
-        let mut chars_iter = chars.chars();
-        if let Some(first) = chars_iter.next() {
-            chars_iter.fold(Self::char(first),|pat, char| pat >> Self::char(char))
-        } else {
-            Pattern::never()
-        }
+        chars.chars().fold(Self::always(),|pat,char| pat >> Self::char(char))
     }
 
     /// The pattern that triggers on any characters contained in `chars`.
@@ -129,14 +122,29 @@ impl Pattern {
         Self::none_of(&char.to_string())
     }
 
+    /// The pattern that triggers on any symbol but `symbol`.
+    pub fn not_symbol(symbol:Symbol) -> Self {
+        if symbol == Symbol::NULL {
+            Self::Range(Symbol::from(Symbol::NULL.value + 1)..=Symbol::EOF_CODE)
+        } else if symbol == Symbol::EOF_CODE {
+            Self::Range(Symbol::NULL..=Symbol::from(Symbol::EOF_CODE.value - 1))
+        } else {
+            let prev_code = Symbol::from(symbol.value - 1);
+            let next_code = Symbol::from(symbol.value + 1);
+            let before    = Self::Range(Symbol::NULL..=prev_code);
+            let after     = Self::Range(next_code..=Symbol::EOF_CODE);
+            before | after
+        }
+    }
+
     /// The pattern that triggers on `num` repetitions of `pat`.
-    pub fn repeat(pat:Pattern, num:usize) -> Self {
+    pub fn repeat(pat:&Pattern, num:usize) -> Self {
         (0..num).fold(Self::always(),|p,_| p >> pat.clone())
     }
 
     /// Pattern that triggers on `min`..`max` repetitions of `pat`.
-    pub fn repeat_between(pat:Pattern, min:usize, max:usize) -> Self {
-        (min..max).fold(Self::never(),|p,n| p | Self::repeat(pat.clone(),n))
+    pub fn repeat_between(pat:&Pattern, min:usize, max:usize) -> Self {
+        (min..max).fold(Self::never(),|p,n| p | Self::repeat(pat,n))
     }
 }
 
