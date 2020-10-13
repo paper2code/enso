@@ -183,10 +183,7 @@ pub fn automaton_for_group
 ) -> Result<Vec<ImplItem>,GenError> {
     let nfa       = registry.to_nfa_from(group.id);
     let mut rules = Vec::with_capacity(nfa.states.len());
-    for (ix, state) in nfa.states.iter().enumerate() {
-        println!("ID: {}",ix);
-        println!("Name: {:?}",state.name);
-        println!("Code: {:?}",state.callback);
+    for (_, state) in nfa.states.iter().enumerate() {
         if state.name.is_some() {
             rules.push(rule_for_state(state)?);
         }
@@ -234,22 +231,35 @@ pub fn match_for_transition<S:BuildHasher>
 , state_ix     : usize
 , has_overlaps : &mut HashMap<usize,bool,S>
 ) -> Result<Expr,GenError> {
+    println!("MATCH ===================================================");
+    println!("Index: {}",state_ix);
     let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
+    println!("Overlaps: {}",overlaps);
     let state             = dfa.callbacks.get(state_ix).expect("Internal error.").clone();
     let mut trigger_state = dfa.links[(state_ix,0)];
     let mut range_start   = u32::min_value();
     let divisions:Vec<_>  = dfa.alphabet_segmentation.divisions_as_vec();
+    println!("Num Divisions: {}",divisions.len());
     let mut branches      = Vec::with_capacity(divisions.len());
     for division in divisions.into_iter() {
         let ix                = division.position;
         let sym               = division.symbol;
+        println!("SYMBOL =============================");
+        println!("Symbol Index: {}",ix);
+        println!("Symbol Value: {}",sym.value);
         let new_trigger_state = dfa.links[(state_ix,ix)];
         if new_trigger_state != trigger_state {
+            println!("Generate Branch");
             let range_end             = if sym.value != 0 { sym.value - 1 } else { sym.value };
             let current_trigger_state = trigger_state;
             let current_range_start   = range_start;
             trigger_state             = new_trigger_state;
             range_start               = sym.value;
+            println!("Range End: {:?}",range_end);
+            println!("Current Trigger State: {:?}",current_trigger_state);
+            println!("Current Range Start: {:?}",current_range_start);
+            println!("Trigger State: {:?}",trigger_state);
+            println!("Range Start: {:?}",range_start);
             let body =
                 branch_body(dfa,current_trigger_state,&state,has_overlaps,overlaps)?;
             branches.push(Branch::new(Some(current_range_start..=range_end),body))
@@ -258,6 +268,7 @@ pub fn match_for_transition<S:BuildHasher>
     let catch_all_branch_body = branch_body(dfa,trigger_state,&state,has_overlaps,overlaps)?;
     let catch_all_branch      = Branch::new(None,catch_all_branch_body);
     branches.push(catch_all_branch);
+    println!("Branches Length: {}",branches.len());
     let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
     let mut match_expr:ExprMatch = parse_quote! {
         match u32::from(reader.character()) {
