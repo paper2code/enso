@@ -23,6 +23,7 @@ fn generate_engine() -> std::io::Result<()> {
     let engine           = lexer.specialize().unwrap();
     lexer_def.read_to_string(&mut contents).expect("Unable to read lexer definition.");
     file.write_all(contents.as_bytes()).expect("Unable to write lexer definition.");
+    file.write_all("\n".as_bytes())?;
     file.write_all(engine.as_bytes()).expect("Unable to write lexer specialization.");
     Ok(())
 }

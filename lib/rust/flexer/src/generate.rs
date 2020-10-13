@@ -237,9 +237,7 @@ pub fn match_for_transition<S:BuildHasher>
     let mut range_start   = enso_automata::symbol::SymbolIndex::min_value();
     let divisions         = dfa.alphabet.division_map.clone();
     let mut branches      = Vec::with_capacity(divisions.len());
-    for (symbol, position) in divisions.into_iter() {
-        let ix                = position;
-        let sym               = symbol;
+    for (sym, ix) in divisions.into_iter() {
         let new_trigger_state = dfa.links[(state_ix,ix)];
         if new_trigger_state != trigger_state {
             let range_end             = if sym.index != 0 { sym.index - 1 } else { sym.index };
@@ -257,7 +255,7 @@ pub fn match_for_transition<S:BuildHasher>
     branches.push(catch_all_branch);
     let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
     let mut match_expr:ExprMatch = parse_quote! {
-        match u32::from(reader.character()) {
+        match u64::from(reader.character()) {
             #(#arms)*
         }
     };

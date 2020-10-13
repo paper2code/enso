@@ -144,18 +144,15 @@ impl TestLexer {
     fn on_no_err_suffix_first_word<R:LazyReader>(&mut self, _reader:&mut R) {}
 
     fn rules_in_root(lexer:&mut TestLexer) {
-        let a_word        = Pattern::char('a').many1();
-        let b_word        = Pattern::char('b').many1();
-        let any           = Pattern::any();
-        let end           = Pattern::eof();
+        let a  = c!('a');
+        let b  = c!('b');
+        let ab = &a >> &b;
 
         let root_group_id = lexer.initial_state;
         let root_group    = lexer.groups_mut().group_mut(root_group_id);
 
-        root_group.create_rule(&a_word,"self.on_first_word(reader)");
-        root_group.create_rule(&b_word,"self.on_first_word(reader)");
-        root_group.create_rule(&end,   "self.on_no_err_suffix_first_word(reader)");
-        root_group.create_rule(&any,   "self.on_err_suffix_first_word(reader)");
+        root_group.create_rule(&a,"self.on_first_word(reader)");
+        root_group.create_rule(&ab,"self.on_first_word(reader)");
     }
 }
 
@@ -204,7 +201,7 @@ impl flexer::Definition for TestLexer {
     fn define() -> Self {
         let mut lexer = TestLexer::new();
 
-        TestLexer::rules_in_seen_first_word(&mut lexer);
+        // TestLexer::rules_in_seen_first_word(&mut lexer);
         TestLexer::rules_in_root(&mut lexer);
 
         lexer
@@ -282,7 +279,7 @@ impl flexer::State for TestState {
 }
 
 #[test]
-fn execute_specialize() {
+fn generate() {
     let lexer = TestLexer::define();
     let result = lexer.specialize();
     assert!(result.is_ok());

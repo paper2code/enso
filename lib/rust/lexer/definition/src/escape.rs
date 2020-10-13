@@ -316,4 +316,6 @@ mod test {
         let token  = Token::TextSegmentEscape(token::EscapeStyle::InvalidUnicode,"\\Uafafafaf",0);
         assert_eq!(U32::build(escape,0),token);
     }
+
+    // TODO [AA] Macro this.
 }

@@ -978,7 +978,6 @@ mod tests {
             Token::BlankLine(7,LineEnding::LF),
             Token::Line(vec![Token::TextSegmentRaw("aaaaaaa",0)],0,LineEnding::LF),
         ];
-        println!("{:?}",&lines);
         let token = Token::DocComment(lines.clone(),3,0);
         assert_shape(&token,Shape::doc_comment(lines.clone(),3));
         assert_length(&token,55);
