@@ -552,6 +552,11 @@ impl EnsoLexer {
         self.pop_state();
     }
 
+    fn ident_on_eof_suffix<R:LazyReader>(&mut self, _reader:&mut R) {
+        trace!(self.logger,"Identifier::ident_on_eof_suffix");
+        unimplemented!();
+    }
+
     /// The set of rules for lexing Enso identifiers.
     fn add_identifier_rules(lexer:&mut EnsoLexer) {
         let body_char    = (EnsoLexer::lower_ascii_letter() | EnsoLexer::ascii_digit()).many();

@@ -80,6 +80,7 @@ impl NFA {
         self.states[source.id].add_link(Transition::new(symbols.clone(),target_state));
     }
 
+    // TODO [AA] Tests for these results.
     /// Transforms a pattern to an NFA using the algorithm described
     /// [here](https://www.youtube.com/watch?v=RYNN-tb9WxI).
     /// The asymptotic complexity is linear in number of symbols.
