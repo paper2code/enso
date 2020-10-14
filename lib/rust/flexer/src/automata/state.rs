@@ -41,7 +41,7 @@ impl State {
         let mut index   = 0;
         let mut links   = self.links.clone();
         links.sort_by_key(|link| *link.symbols.start());
-        for &symbol in &alphabet.divisions {
+        for &symbol in alphabet.divisions() {
             while links.len() > index && *links[index].symbols.end() < symbol {
                 index += 1;
             }

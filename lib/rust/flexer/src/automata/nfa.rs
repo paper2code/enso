@@ -149,7 +149,7 @@ impl NFA {
 
     /// Computes a transition matrix `(state, symbol) => state` for the NFA, ignoring epsilon links.
     fn nfa_matrix(&self) -> Matrix<state::Identifier> {
-        let mut matrix = Matrix::new(self.states.len(),self.alphabet_segmentation.divisions.len());
+        let mut matrix = Matrix::new(self.states.len(),self.alphabet_segmentation.len());
 
         for (state_ix, source) in self.states.iter().enumerate() {
             let targets = source.targets(&self.alphabet_segmentation);
@@ -172,7 +172,7 @@ impl From<&NFA> for DFA {
     fn from(nfa:&NFA) -> Self {
         let     nfa_mat     = nfa.nfa_matrix();
         let     eps_mat     = nfa.eps_matrix();
-        let mut dfa_mat     = Matrix::new(0,nfa.alphabet_segmentation.divisions.len());
+        let mut dfa_mat     = Matrix::new(0,nfa.alphabet_segmentation.len());
         let mut dfa_eps_ixs = Vec::<StateSetId>::new();
         let mut dfa_eps_map = HashMap::<StateSetId,state::Identifier>::new();
 
@@ -182,7 +182,7 @@ impl From<&NFA> for DFA {
         let mut i = 0;
         while i < dfa_eps_ixs.len()  {
             dfa_mat.new_row();
-            for voc_ix in 0..nfa.alphabet_segmentation.divisions.len() {
+            for voc_ix in 0..nfa.alphabet_segmentation.len() {
                 let mut eps_set = StateSetId::new();
                 for &eps_ix in &dfa_eps_ixs[i] {
                     let tgt = nfa_mat[(eps_ix.id,voc_ix)];
