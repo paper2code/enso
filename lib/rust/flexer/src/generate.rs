@@ -183,7 +183,7 @@ pub fn automaton_for_group
     let nfa       = registry.to_nfa_from(group.id);
     let mut rules = Vec::with_capacity(nfa.states.len());
     for state in nfa.states.iter() {
-        if state.name.is_some() {
+        if state.name().is_some() {
             rules.push(rule_for_state(state)?);
         }
     }
@@ -379,13 +379,13 @@ pub fn name_for_step(in_state:usize, to_state:usize) -> Ident {
 
 /// Generate an executable rule function for a given lexer state.
 pub fn rule_for_state(state:&State) -> Result<ImplItem,GenError> {
-    match &state.name {
+    match &state.name() {
         None => unreachable_panic!("Rule for state requested, but state has none."),
         Some(name) => {
             let rule_name = str_to_ident(name)?;
-            let code:Expr = match parse_str(state.callback.as_str()) {
+            let code:Expr = match parse_str(state.callback().as_str()) {
                 Ok(expr) => expr,
-                Err(_)   => return Err(GenError::BadExpression(state.callback.clone()))
+                Err(_)   => return Err(GenError::BadExpression(state.callback().clone()))
             };
             if !has_reader_arg(&code) {
                 return Err(GenError::BadCallbackArgument)

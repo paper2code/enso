@@ -63,7 +63,7 @@ impl NFA {
     /// Whenever the automaton happens to be in `source` state it can immediately transition to the
     /// `target` state. It is, however, not _required_ to do so.
     pub fn connect(&mut self, source:state::Identifier, target:state::Identifier) {
-        self.states[source.id].epsilon_links.push(target);
+        self.states[source.id].add_epsilon_link(target);
     }
 
     /// Creates an ordinary transition for a range of symbols.
@@ -77,7 +77,7 @@ impl NFA {
     , symbols      : &RangeInclusive<Symbol>
     ) {
         self.alphabet_segmentation.insert(symbols.clone());
-        self.states[source.id].links.push(Transition{symbols:symbols.clone(),target_state});
+        self.states[source.id].add_link(Transition::new(symbols.clone(),target_state));
     }
 
     /// Transforms a pattern to an NFA using the algorithm described
@@ -114,6 +114,7 @@ impl NFA {
                 end
             },
             Pattern::Always => current,
+            Pattern::Never  => self.new_state(),
         }
     }
 
@@ -129,7 +130,7 @@ impl NFA {
             let mut state_set = StateSetId::new();
             visited[state.id] = true;
             state_set.insert(state);
-            for &target in &nfa.states[state.id].epsilon_links {
+            for &target in nfa.states[state.id].epsilon_links() {
                 if !visited[target.id] {
                     fill_eps_matrix(nfa,states,visited,target);
                 }
@@ -208,9 +209,9 @@ impl From<&NFA> for DFA {
         let mut callbacks = vec![None; dfa_eps_ixs.len()];
         let     priority  = dfa_eps_ixs.len();
         for (dfa_ix, epss) in dfa_eps_ixs.into_iter().enumerate() {
-            let has_name = |&key:&state::Identifier| nfa.states[key.id].name.is_some();
+            let has_name = |&key:&state::Identifier| nfa.states[key.id].name().is_some();
             if let Some(eps) = epss.into_iter().find(has_name) {
-                let code          = nfa.states[eps.id].name.as_ref().cloned().unwrap();
+                let code          = nfa.states[eps.id].name().as_ref().cloned().unwrap();
                 callbacks[dfa_ix] = Some(RuleExecutable {code,priority});
             }
         }
@@ -230,6 +231,7 @@ impl From<&NFA> for DFA {
 
 #[cfg(test)]
 pub mod tests {
+    /*
     extern crate test;
 
     use crate::automata::dfa;
@@ -342,4 +344,5 @@ pub mod tests {
     fn bench_to_dfa_letter_and_spaces(bencher:&mut Bencher) {
         bencher.iter(|| DFA::from(&letter_and_spaces()))
     }
+     */
 }

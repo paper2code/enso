@@ -112,8 +112,8 @@ impl Registry {
         let states    = rules.into_iter().map(build).collect_vec();
         let end       = nfa.new_state();
         for (ix,state) in states.into_iter().enumerate() {
-            nfa.states[state.id].name     = Some(group.callback_name(ix));
-            nfa.states[state.id].callback = callbacks.get(ix).unwrap().clone();
+            nfa.states[state.id].set_name(Some(group.callback_name(ix)));
+            nfa.states[state.id].set_callback(callbacks.get(ix).unwrap().clone());
             nfa.connect(state,end);
         }
         nfa
@@ -250,6 +250,7 @@ impl Display for Group {
 
 #[cfg(test)]
 pub mod tests {
+    /*
     extern crate test;
 
     use crate::automata::nfa;
@@ -363,4 +364,5 @@ pub mod tests {
     fn bench_thousand_rules(bencher:&mut Bencher) {
         bencher.iter(|| complex_rules(1000).to_nfa_from(default()))
     }
+     */
 }

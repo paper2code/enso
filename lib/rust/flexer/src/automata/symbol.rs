@@ -51,3 +51,32 @@ impl From<&Symbol> for Symbol {
         Symbol{value}
     }
 }
+
+
+
+// =============
+// === Tests ===
+// =============
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default() {
+        let sym = Symbol::default();
+        assert_eq!(sym,Symbol::NULL);
+    }
+
+    #[test]
+    fn from_natural() {
+        let sym = Symbol::from(12143u32);
+        assert_eq!(sym.value,12143u32);
+    }
+
+    #[test]
+    fn from_char() {
+        let sym = Symbol::from('a');
+        assert_eq!(sym.value,97);
+    }
+}
