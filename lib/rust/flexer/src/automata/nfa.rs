@@ -8,7 +8,7 @@ use crate::automata::state::State;
 use crate::automata::state::Transition;
 use crate::automata::state;
 use crate::automata::symbol::Symbol;
-use crate::data::matrix::Matrix;
+use crate::automata::data::matrix::Matrix;
 
 use itertools::Itertools;
 use std::collections::BTreeSet;

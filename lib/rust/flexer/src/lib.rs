@@ -1024,7 +1024,6 @@ use prelude::logger::AnyLogger;
 use prelude::reader::BookmarkManager;
 
 pub mod automata;
-pub mod data;
 pub mod generate;
 pub mod group;
 

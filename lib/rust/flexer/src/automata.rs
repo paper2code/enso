@@ -2,6 +2,7 @@
 //! non-deterministic forms.
 
 pub mod alphabet;
+pub mod data;
 pub mod dfa;
 pub mod nfa;
 pub mod pattern;

@@ -2,7 +2,7 @@
 
 use crate::automata::alphabet;
 use crate::automata::state;
-use crate::data::matrix::Matrix;
+use crate::automata::data::matrix::Matrix;
 
 
 
