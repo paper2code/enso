@@ -1,8 +1,6 @@
 //! The structure for defining non-deterministic finite automata.
 
 use crate::automata::alphabet;
-use crate::automata::dfa::DFA;
-use crate::automata::dfa::RuleExecutable;
 use crate::automata::pattern::Pattern;
 use crate::automata::state::State;
 use crate::automata::state::Transition;
@@ -12,7 +10,6 @@ use crate::automata::data::matrix::Matrix;
 
 use itertools::Itertools;
 use std::collections::BTreeSet;
-use std::collections::HashMap;
 use std::ops::RangeInclusive;
 
 use crate::prelude::*;
@@ -27,7 +24,7 @@ use crate::prelude::*;
 ///
 /// This is used during the NFA -> DFA transformation, where multiple states can merge together due
 /// to the collapsing of epsilon transitions.
-type StateSetId = BTreeSet<state::Identifier>;
+pub type StateSetId = BTreeSet<state::Identifier>;
 
 /// The definition of a [NFA](https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton) for a
 /// given set of symbols, states, and transitions (specifically a NFA with ε-moves).
@@ -121,7 +118,7 @@ impl NFA {
 
     /// Merges states that are connected by epsilon links, using an algorithm based on the one shown
     /// [here](https://www.youtube.com/watch?v=taClnxU-nao).
-    fn eps_matrix(&self) -> Vec<StateSetId> {
+    pub fn eps_matrix(&self) -> Vec<StateSetId> {
         fn fill_eps_matrix
         ( nfa      : &NFA
         , states   : &mut Vec<StateSetId>
@@ -150,7 +147,7 @@ impl NFA {
     }
 
     /// Computes a transition matrix `(state, symbol) => state` for the NFA, ignoring epsilon links.
-    fn nfa_matrix(&self) -> Matrix<state::Identifier> {
+    pub fn nfa_matrix(&self) -> Matrix<state::Identifier> {
         let mut matrix = Matrix::new(self.states.len(),self.alphabet_segmentation.len());
 
         for (state_ix, source) in self.states.iter().enumerate() {
@@ -164,67 +161,6 @@ impl NFA {
 }
 
 
-// === Trait Impls ===
-
-impl From<&NFA> for DFA {
-
-    /// Transforms an NFA into a DFA, based on the algorithm described
-    /// [here](https://www.youtube.com/watch?v=taClnxU-nao).
-    /// The asymptotic complexity is quadratic in number of states.
-    fn from(nfa:&NFA) -> Self {
-        let     nfa_mat     = nfa.nfa_matrix();
-        let     eps_mat     = nfa.eps_matrix();
-        let mut dfa_mat     = Matrix::new(0,nfa.alphabet_segmentation.len());
-        let mut dfa_eps_ixs = Vec::<StateSetId>::new();
-        let mut dfa_eps_map = HashMap::<StateSetId,state::Identifier>::new();
-
-        dfa_eps_ixs.push(eps_mat[0].clone());
-        dfa_eps_map.insert(eps_mat[0].clone(),state::Identifier::from(0));
-
-        let mut i = 0;
-        while i < dfa_eps_ixs.len()  {
-            dfa_mat.new_row();
-            for voc_ix in 0..nfa.alphabet_segmentation.len() {
-                let mut eps_set = StateSetId::new();
-                for &eps_ix in &dfa_eps_ixs[i] {
-                    let tgt = nfa_mat[(eps_ix.id,voc_ix)];
-                    if tgt != state::Identifier::INVALID {
-                        eps_set.extend(eps_mat[tgt.id].iter());
-                    }
-                }
-                if !eps_set.is_empty() {
-                    dfa_mat[(i,voc_ix)] = match dfa_eps_map.get(&eps_set) {
-                        Some(&id) => id,
-                        None => {
-                            let id = state::Identifier::new(dfa_eps_ixs.len());
-                            dfa_eps_ixs.push(eps_set.clone());
-                            dfa_eps_map.insert(eps_set,id);
-                            id
-                        },
-                    };
-                }
-            }
-            i += 1;
-        }
-
-        let mut callbacks = vec![None; dfa_eps_ixs.len()];
-        let     priority  = dfa_eps_ixs.len();
-        for (dfa_ix, epss) in dfa_eps_ixs.into_iter().enumerate() {
-            let has_name = |&key:&state::Identifier| nfa.states[key.id].name().is_some();
-            if let Some(eps) = epss.into_iter().find(has_name) {
-                let code          = nfa.states[eps.id].name().as_ref().cloned().unwrap();
-                callbacks[dfa_ix] = Some(RuleExecutable {code,priority});
-            }
-        }
-
-        let alphabet_segmentation = nfa.alphabet_segmentation.clone();
-        let links = dfa_mat;
-
-        DFA{alphabet_segmentation,links,callbacks}
-    }
-}
-
-
 
 // ===========
 // == Tests ==
@@ -232,118 +168,51 @@ impl From<&NFA> for DFA {
 
 #[cfg(test)]
 pub mod tests {
-    /*
-    extern crate test;
-
-    use crate::automata::dfa;
-
     use super::*;
-    use test::Bencher;
 
-    /// NFA that accepts a newline '\n'.
-    pub fn newline() -> NFA {
-        NFA {
-            states:vec![
-                State::from(vec![1]),
-                State::from(vec![(10..=10,2)]),
-                State::from(vec![3]).named("group_0_rule_0"),
-                State::default(),
-            ],
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(vec![10, 11].as_slice()),
-        }
-    }
+    // TODO [AA] Simple single-element rules.
+    // TODO [AA] More-complex chained rules.
+    // TODO [AA] Test the basic cases of patterns.
+    // TODO [AA] Second group from flexer test
 
-    /// NFA that accepts any letter in the range a..=z.
-    pub fn letter() -> NFA {
-        NFA {
-            states:vec![
-                State::from(vec![1]),
-                State::from(vec![(97..=122,2)]),
-                State::from(vec![3]).named("group_0_rule_0"),
-                State::default(),
-            ],
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(vec![97, 123].as_slice()),
-        }
-    }
+    #[test]
+    fn nfa_pattern_range() {
 
-    /// NFA that accepts any number of spaces ' '.
-    pub fn spaces() -> NFA {
-        NFA {
-            states:vec![
-                State::from(vec![1]),
-                State::from(vec![2]),
-                State::from(vec![(32..=32,3)]),
-                State::from(vec![4]),
-                State::from(vec![5,8]),
-                State::from(vec![6]),
-                State::from(vec![(32..=32,7)]),
-                State::from(vec![8]),
-                State::from(vec![5,9]).named("group_0_rule_0"),
-                State::default(),
-            ],
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(vec![0, 32, 33].as_slice()),
-        }
-    }
-
-    /// NFA that accepts one letter a..=z or many spaces ' '.
-    pub fn letter_and_spaces() -> NFA {
-        NFA {
-            states:vec![
-                State::from(vec![1,3]),
-                State::from(vec![(97..=122,2)]),
-                State::from(vec![11]).named("group_0_rule_0"),
-                State::from(vec![4]),
-                State::from(vec![(32..=32,5)]),
-                State::from(vec![6]),
-                State::from(vec![7,10]),
-                State::from(vec![8]),
-                State::from(vec![(32..=32,9)]),
-                State::from(vec![10]),
-                State::from(vec![7,11]).named("group_0_rule_1"),
-                State::default(),
-            ],
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(vec![32, 33, 97, 123].as_slice()),
-        }
     }
 
     #[test]
-    fn test_to_dfa_newline() {
-        assert_eq!(DFA::from(&newline()),dfa::tests::newline());
+    fn nfa_pattern_or() {
+
     }
 
     #[test]
-    fn test_to_dfa_letter() {
-        assert_eq!(DFA::from(&letter()),dfa::tests::letter());
+    fn nfa_pattern_seq() {
+
     }
 
     #[test]
-    fn test_to_dfa_spaces() {
-        assert_eq!(DFA::from(&spaces()),dfa::tests::spaces());
+    fn nfa_pattern_many() {
+
     }
 
     #[test]
-    fn test_to_dfa_letter_and_spaces() {
-        assert_eq!(DFA::from(&letter_and_spaces()),dfa::tests::letter_and_spaces());
+    fn nfa_pattern_always() {
+
     }
 
-    #[bench]
-    fn bench_to_dfa_newline(bencher:&mut Bencher) {
-        bencher.iter(|| DFA::from(&newline()))
+    #[test]
+    fn nfa_pattern_never() {
+
     }
 
-    #[bench]
-    fn bench_to_dfa_letter(bencher:&mut Bencher) {
-        bencher.iter(|| DFA::from(&letter()))
+    #[test]
+    fn nfa_simple_rules() {
+
     }
 
-    #[bench]
-    fn bench_to_dfa_spaces(bencher:&mut Bencher) {
-        bencher.iter(|| DFA::from(&spaces()))
+    #[test]
+    fn nfa_complex_rules() {
+
     }
 
-    #[bench]
-    fn bench_to_dfa_letter_and_spaces(bencher:&mut Bencher) {
-        bencher.iter(|| DFA::from(&letter_and_spaces()))
-    }
-     */
 }

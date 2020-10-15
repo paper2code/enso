@@ -1,8 +1,26 @@
 //! The structure for defining deterministic finite automata.
 
 use crate::automata::alphabet;
+use crate::automata::nfa::NFA;
 use crate::automata::state;
 use crate::automata::data::matrix::Matrix;
+
+use std::collections::BTreeSet;
+use std::collections::HashMap;
+
+use crate::prelude::*;
+
+
+
+// =============
+// === Types ===
+// =============
+
+/// A state identifier based on a set of states.
+///
+/// This is used during the NFA -> DFA transformation, where multiple states can merge together due
+/// to the collapsing of epsilon transitions.
+pub type StateSetId = BTreeSet<state::Identifier>;
 
 
 
@@ -61,6 +79,64 @@ impl DFA {
 
 // === Trait Impls ===
 
+impl From<&NFA> for DFA {
+
+    /// Transforms an NFA into a DFA, based on the algorithm described
+    /// [here](https://www.youtube.com/watch?v=taClnxU-nao).
+    /// The asymptotic complexity is quadratic in number of states.
+    fn from(nfa:&NFA) -> Self {
+        let     nfa_mat     = nfa.nfa_matrix();
+        let     eps_mat     = nfa.eps_matrix();
+        let mut dfa_mat     = Matrix::new(0,nfa.alphabet_segmentation.len());
+        let mut dfa_eps_ixs = Vec::<StateSetId>::new();
+        let mut dfa_eps_map = HashMap::<StateSetId,state::Identifier>::new();
+
+        dfa_eps_ixs.push(eps_mat[0].clone());
+        dfa_eps_map.insert(eps_mat[0].clone(),state::Identifier::from(0));
+
+        let mut i = 0;
+        while i < dfa_eps_ixs.len()  {
+            dfa_mat.new_row();
+            for voc_ix in 0..nfa.alphabet_segmentation.len() {
+                let mut eps_set = StateSetId::new();
+                for &eps_ix in &dfa_eps_ixs[i] {
+                    let tgt = nfa_mat[(eps_ix.id,voc_ix)];
+                    if tgt != state::Identifier::INVALID {
+                        eps_set.extend(eps_mat[tgt.id].iter());
+                    }
+                }
+                if !eps_set.is_empty() {
+                    dfa_mat[(i,voc_ix)] = match dfa_eps_map.get(&eps_set) {
+                        Some(&id) => id,
+                        None => {
+                            let id = state::Identifier::new(dfa_eps_ixs.len());
+                            dfa_eps_ixs.push(eps_set.clone());
+                            dfa_eps_map.insert(eps_set,id);
+                            id
+                        },
+                    };
+                }
+            }
+            i += 1;
+        }
+
+        let mut callbacks = vec![None; dfa_eps_ixs.len()];
+        let     priority  = dfa_eps_ixs.len();
+        for (dfa_ix, epss) in dfa_eps_ixs.into_iter().enumerate() {
+            let has_name = |&key:&state::Identifier| nfa.states[key.id].name().is_some();
+            if let Some(eps) = epss.into_iter().find(has_name) {
+                let code          = nfa.states[eps.id].name().as_ref().cloned().unwrap();
+                callbacks[dfa_ix] = Some(RuleExecutable {code,priority});
+            }
+        }
+
+        let alphabet_segmentation = nfa.alphabet_segmentation.clone();
+        let links = dfa_mat;
+
+        DFA{alphabet_segmentation,links,callbacks}
+    }
+}
+
 impl From<Vec<Vec<usize>>> for Matrix<state::Identifier> {
     fn from(input:Vec<Vec<usize>>) -> Self {
         let rows        = input.len();
@@ -113,6 +189,8 @@ pub mod tests {
     use crate::automata::state;
 
     use super::*;
+
+    // TODO [AA] Conversion tests from the nfa automata
 
     const INVALID:usize = state::Identifier::INVALID.id;
 
@@ -175,4 +253,24 @@ pub mod tests {
             ],
         }
     }
+
+    // #[bench]
+    // fn bench_to_dfa_newline(bencher:&mut Bencher) {
+    //     bencher.iter(|| DFA::from(&newline()))
+    // }
+    //
+    // #[bench]
+    // fn bench_to_dfa_letter(bencher:&mut Bencher) {
+    //     bencher.iter(|| DFA::from(&letter()))
+    // }
+    //
+    // #[bench]
+    // fn bench_to_dfa_spaces(bencher:&mut Bencher) {
+    //     bencher.iter(|| DFA::from(&spaces()))
+    // }
+    //
+    // #[bench]
+    // fn bench_to_dfa_letter_and_spaces(bencher:&mut Bencher) {
+    //     bencher.iter(|| DFA::from(&letter_and_spaces()))
+    // }
 }
