@@ -12,7 +12,7 @@ use crate::automata::pattern::Pattern;
 // ==========
 
 /// A flexer rule.
-#[derive(Clone,Debug)]
+#[derive(Clone,Debug,PartialEq)]
 pub struct Rule {
     /// The pattern that triggers the callback.
     pub pattern:Pattern,

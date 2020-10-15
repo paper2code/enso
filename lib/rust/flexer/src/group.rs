@@ -250,119 +250,79 @@ impl Display for Group {
 
 #[cfg(test)]
 pub mod tests {
-    /*
-    extern crate test;
+    use super::*;
 
-    use crate::automata::nfa;
-    use crate::automata::pattern::Pattern;
-    use crate::group::Group;
-    use crate::group::Registry;
-    use crate::group::rule::Rule;
+    #[test]
+    fn group_create_rule() {
+        let pattern   = Pattern::all_of("abcde");
+        let mut group = Group::new(0.into(),"Test Name",None);
+        group.create_rule(&pattern,"code");
+        let rule = Rule::new(pattern,"code");
+        assert!(group.rules.contains(&rule));
+        assert_eq!(group.rules[0].callback,"code".to_string());
+    }
 
-    use std::default::Default;
-    use test::Bencher;
-    use enso_prelude::default;
+    #[test]
+    fn group_callback_name() {
+        let pattern_1 = Pattern::all_of("abcde");
+        let pattern_2 = Pattern::all_of("abcde");
+        let mut group = Group::new(0.into(),"Test Name",None);
+        group.create_rule(&pattern_1,"code");
+        group.create_rule(&pattern_2,"code");
+        assert_eq!(group.callback_name(0),"group_0_rule_0");
+        assert_eq!(group.callback_name(1),"group_0_rule_1");
+    }
 
-    fn newline() -> Registry {
-        let     pattern = Pattern::char('\n');
-        let mut group   = Group::default();
-        group.add_rule(Rule::new(pattern,""));
+    #[test]
+    fn group_registry_define_group() {
         let mut registry = Registry::default();
-        registry.add_group(group);
-        registry
-    }
-
-    fn letter() -> Registry {
-        let     pattern = Pattern::range('a'..='z');
-        let mut group   = Group::default();
-        group.add_rule(Rule::new(pattern,""));
-        group.into()
-    }
-
-    fn spaces() -> Registry {
-        let     pattern = Pattern::char(' ').many1();
-        let mut group   = Group::default();
-        group.add_rule(Rule::new(pattern,""));
-        group.into()
-    }
-
-    fn letter_and_spaces() -> Registry {
-        let     letter = Pattern::range('a'..='z');
-        let     spaces = Pattern::char(' ').many1();
-        let mut group  = Group::default();
-        group.add_rule(Rule::new(letter,""));
-        group.add_rule(Rule::new(spaces,""));
-        group.into()
-    }
-
-    fn complex_rules(count:usize) -> Registry {
-        let mut group   = Group::default();
-        for ix in 0..count {
-            let string       = ix.to_string();
-            let all          = Pattern::all_of(&string);
-            let any          = Pattern::any_of(&string);
-            let none         = Pattern::none_of(&string);
-            let all_any_none = all >> any >> none;
-            let pattern      = Pattern::many(&all_any_none);
-            group.add_rule(Rule::new(pattern.clone(),""));
-        }
-        group.into()
+        registry.define_group("TEST_GROUP",None);
+        assert!(registry.all().iter().find(|g| g.name == "TEST_GROUP".to_string()).is_some());
     }
 
     #[test]
-    fn test_to_nfa_newline() {
-        assert_eq!(newline().to_nfa_from(default()),nfa::tests::newline());
+    fn group_registry_create_rule() {
+        let pattern      = Pattern::none_of("abcde");
+        let mut registry = Registry::default();
+        let group_1_id   = registry.define_group("GROUP_1",None);
+        let group_2_id   = registry.define_group("GROUP_2",None);
+
+        let group_1      = registry.group_mut(group_1_id);
+        group_1.create_rule(&pattern,"rule_1");
+
+        let group_2  = registry.group_mut(group_2_id);
+        group_2.create_rule(&pattern,"rule_2");
+
+        let rules_1 = registry.rules_for(group_1_id);
+        let rules_2 = registry.rules_for(group_2_id);
+        assert!(rules_1.iter().find(|r| ***r == Rule::new(pattern.clone(),"rule_1")).is_some());
+        assert!(rules_2.iter().find(|r| ***r == Rule::new(pattern.clone(),"rule_2")).is_some());
     }
 
     #[test]
-    fn test_to_nfa_letter() {
-        assert_eq!(letter().to_nfa_from(default()),nfa::tests::letter());
-    }
+    fn group_registry_group_parents() {
+        let pattern_1 = Pattern::char('a');
+        let pattern_2 = Pattern::char('b');
+        let pattern_3 = Pattern::char('c');
 
-    #[test]
-    fn test_to_nfa_spaces() {
-        assert_eq!(spaces().to_nfa_from(default()),nfa::tests::spaces());
-    }
+        let mut registry = Registry::default();
+        let group_1_id = registry.define_group("GROUP_1", None);
+        let group_2_id = registry.define_group("GROUP_2", Some(group_1_id));
+        let group_3_id = registry.define_group("GROUP_3", Some(group_2_id));
 
-    #[test]
-    fn test_to_nfa_letter_and_spaces() {
-        let expected = nfa::tests::letter_and_spaces();
-        assert_eq!(letter_and_spaces().to_nfa_from(default()),expected);
-    }
+        let group_1 = registry.group_mut(group_1_id);
+        group_1.create_rule(&pattern_1, "rule_1");
 
-    #[bench]
-    fn bench_to_nfa_newline(bencher:&mut Bencher) {
-        bencher.iter(|| newline().to_nfa_from(default()))
-    }
+        let group_2 = registry.group_mut(group_2_id);
+        group_2.create_rule(&pattern_2, "rule_2");
 
-    #[bench]
-    fn bench_to_nfa_letter(bencher:&mut Bencher) {
-        bencher.iter(|| letter().to_nfa_from(default()))
-    }
+        let group_3 = registry.group_mut(group_3_id);
+        group_3.create_rule(&pattern_3, "rule_3");
 
-    #[bench]
-    fn bench_to_nfa_spaces(bencher:&mut Bencher) {
-        bencher.iter(|| spaces().to_nfa_from(default()))
+        let rules = registry.rules_for(group_3_id);
+        assert_eq!(rules.len(), 3);
+        assert!(rules.iter().find(|r| ***r == Rule::new(pattern_1.clone(),"rule_1")).is_some());
+        assert!(rules.iter().find(|r| ***r == Rule::new(pattern_2.clone(),"rule_2")).is_some());
+        assert!(rules.iter().find(|r| ***r == Rule::new(pattern_3.clone(),"rule_3")).is_some());
     }
-
-    #[bench]
-    fn bench_to_nfa_letter_and_spaces(bencher:&mut Bencher) {
-        bencher.iter(|| letter_and_spaces().to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_ten_rules(bencher:&mut Bencher) {
-        bencher.iter(|| complex_rules(10).to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_hundred_rules(bencher:&mut Bencher) {
-        bencher.iter(|| complex_rules(100).to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_thousand_rules(bencher:&mut Bencher) {
-        bencher.iter(|| complex_rules(1000).to_nfa_from(default()))
-    }
-     */
 }

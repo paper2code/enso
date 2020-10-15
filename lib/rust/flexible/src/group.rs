@@ -257,6 +257,12 @@ pub struct Identifier(usize);
 
 // === Trait Impls ===
 
+impl Into<Identifier> for usize {
+    fn into(self) -> Identifier {
+        Identifier(self)
+    }
+}
+
 impl From<usize> for Identifier {
     fn from(id:usize) -> Self {
         Identifier(id)
@@ -359,128 +365,3 @@ impl Display for Group {
         write!(f,"Group {}",self.name)
     }
 }
-
-
-
-// =============
-// === Tests ===
-// =============
-
-/*
-#[cfg(test)]
-pub mod tests {
-    extern crate test;
-
-    use crate::automata::nfa;
-    use crate::automata::pattern::Pattern;
-    use crate::group::Group;
-    use crate::group::Registry;
-    use crate::group::rule::Rule;
-
-    use std::default::Default;
-    use test::Bencher;
-    use enso_prelude::default;
-
-    fn newline() -> Registry {
-        let     pattern = Pattern::char('\n');
-        let mut group   = Group::default();
-        group.add_rule(Rule::new(pattern,""));
-        let mut registry = Registry::default();
-        registry.add_group(group);
-        registry
-    }
-
-    fn letter() -> Registry {
-        let     pattern = Pattern::range('a'..='z');
-        let mut group   = Group::default();
-        group.add_rule(Rule::new(pattern,""));
-        group.into()
-    }
-
-    fn spaces() -> Registry {
-        let     pattern = Pattern::char(' ').many1();
-        let mut group   = Group::default();
-        group.add_rule(Rule::new(pattern,""));
-        group.into()
-    }
-
-    fn letter_and_spaces() -> Registry {
-        let     letter = Pattern::range('a'..='z');
-        let     spaces = Pattern::char(' ').many1();
-        let mut group  = Group::default();
-        group.add_rule(Rule::new(letter,""));
-        group.add_rule(Rule::new(spaces,""));
-        group.into()
-    }
-
-    fn complex_rules(count:usize) -> Registry {
-        let mut group   = Group::default();
-        for ix in 0..count {
-            let string       = ix.to_string();
-            let all          = Pattern::all_of(&string);
-            let any          = Pattern::any_of(&string);
-            let none         = Pattern::none_of(&string);
-            let all_any_none = all >> any >> none;
-            let pattern      = Pattern::many(&all_any_none);
-            group.add_rule(Rule::new(pattern.clone(),""));
-        }
-        group.into()
-    }
-
-    #[test]
-    fn test_to_nfa_newline() {
-        assert_eq!(newline().to_nfa_from(default()),nfa::tests::newline());
-    }
-
-    #[test]
-    fn test_to_nfa_letter() {
-        assert_eq!(letter().to_nfa_from(default()),nfa::tests::letter());
-    }
-
-    #[test]
-    fn test_to_nfa_spaces() {
-        assert_eq!(spaces().to_nfa_from(default()),nfa::tests::spaces());
-    }
-
-    #[test]
-    fn test_to_nfa_letter_and_spaces() {
-        let expected = nfa::tests::letter_and_spaces();
-        assert_eq!(letter_and_spaces().to_nfa_from(default()),expected);
-    }
-
-    #[bench]
-    fn bench_to_nfa_newline(bencher:&mut Bencher) {
-        bencher.iter(|| newline().to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_to_nfa_letter(bencher:&mut Bencher) {
-        bencher.iter(|| letter().to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_to_nfa_spaces(bencher:&mut Bencher) {
-        bencher.iter(|| spaces().to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_to_nfa_letter_and_spaces(bencher:&mut Bencher) {
-        bencher.iter(|| letter_and_spaces().to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_ten_rules(bencher:&mut Bencher) {
-        bencher.iter(|| complex_rules(10).to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_hundred_rules(bencher:&mut Bencher) {
-        bencher.iter(|| complex_rules(100).to_nfa_from(default()))
-    }
-
-    #[bench]
-    fn bench_thousand_rules(bencher:&mut Bencher) {
-        bencher.iter(|| complex_rules(1000).to_nfa_from(default()))
-    }
-}
- */
