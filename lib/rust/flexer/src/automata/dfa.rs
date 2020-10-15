@@ -189,6 +189,7 @@ pub mod tests {
     use crate::automata::nfa;
     use test::Bencher;
 
+
     // === Utilities ===
 
     const INVALID:usize = state::Identifier::INVALID.id;
