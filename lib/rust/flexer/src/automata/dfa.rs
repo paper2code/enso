@@ -67,12 +67,9 @@ impl DFA {
     /// Check whether the DFA has a rule for the target state.
     ///
     /// This method should only be used in generated code, where its invariants are already checked.
-    ///
-    /// # Panics
-    ///
-    /// If no callback exists for `target_state`.
     pub fn has_rule_for(&self, target_state:state::Identifier) -> bool {
-        self.callbacks.get(target_state.id).unwrap().is_some()
+        let callback = self.callbacks.get(target_state.id);
+        callback.is_some() && callback.unwrap().is_some()
     }
 }
 
@@ -191,6 +188,7 @@ pub mod tests {
     use super::*;
 
     // TODO [AA] Conversion tests from the nfa automata
+    // TODO [AA] Check that the alphabet stays the same
 
     const INVALID:usize = state::Identifier::INVALID.id;
 

@@ -169,11 +169,6 @@ impl NFA {
 pub mod tests {
     use super::*;
 
-    // TODO [AA] Simple single-element rules.
-    // TODO [AA] More-complex chained rules.
-    // TODO [AA] Test the basic cases of patterns.
-    // TODO [AA] Second group from flexer test
-
     // === Test Utilities ===
 
     #[allow(missing_docs)]
@@ -229,12 +224,62 @@ pub mod tests {
     }
 
 
+    // === The Automata ===
+
+    pub fn pattern_range() -> NfaTest {
+        let pattern = Pattern::range('a'..='z');
+        NfaTest::make(vec![pattern])
+    }
+
+    pub fn pattern_or() -> NfaTest {
+        let pattern = Pattern::char('a') | Pattern::char('d');
+        NfaTest::make(vec![pattern])
+    }
+
+    pub fn pattern_seq() -> NfaTest {
+        let pattern = Pattern::char('a') >> Pattern::char('d');
+        NfaTest::make(vec![pattern])
+    }
+
+    pub fn pattern_many() -> NfaTest {
+        let pattern = Pattern::char('a').many();
+        NfaTest::make(vec![pattern])
+    }
+
+    pub fn pattern_always() -> NfaTest {
+        let pattern = Pattern::always();
+        NfaTest::make(vec![pattern])
+    }
+
+    pub fn pattern_never() -> NfaTest {
+        let pattern = Pattern::never();
+        NfaTest::make(vec![pattern])
+    }
+
+    pub fn simple_rules() -> NfaTest {
+        let a   = Pattern::char('a');
+        let b   = Pattern::char('b');
+        let ab  = &a >> &b;
+        NfaTest::make(vec![a,ab])
+    }
+
+    pub fn complex_rules() -> NfaTest {
+        let a_word        = Pattern::char('a').many1();
+        let b_word        = Pattern::char('b').many1();
+        let space         = Pattern::char(' ');
+        let spaced_a_word = &space >> &a_word;
+        let spaced_b_word = &space >> &b_word;
+        let any           = Pattern::any();
+        let end           = Pattern::eof();
+        NfaTest::make(vec![spaced_a_word,spaced_b_word,end,any])
+    }
+
+
     // === The Tests ===
 
     #[test]
     fn nfa_pattern_range() {
-        let pattern = Pattern::range('a'..='z');
-        let nfa     = NfaTest::make(vec![pattern]);
+        let nfa = pattern_range();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
@@ -247,8 +292,7 @@ pub mod tests {
 
     #[test]
     fn nfa_pattern_or() {
-        let pattern = Pattern::char('a') | Pattern::char('d');
-        let nfa     = NfaTest::make(vec![pattern]);
+        let nfa = pattern_or();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
@@ -268,8 +312,7 @@ pub mod tests {
 
     #[test]
     fn nfa_pattern_seq() {
-        let pattern = Pattern::char('a') >> Pattern::char('d');
-        let nfa     = NfaTest::make(vec![pattern]);
+        let nfa = pattern_seq();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
@@ -287,8 +330,7 @@ pub mod tests {
 
     #[test]
     fn nfa_pattern_many() {
-        let pattern = Pattern::char('a').many();
-        let nfa     = NfaTest::make(vec![pattern]);
+        let nfa = pattern_many();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
@@ -305,8 +347,7 @@ pub mod tests {
 
     #[test]
     fn nfa_pattern_always() {
-        let pattern = Pattern::always();
-        let nfa     = NfaTest::make(vec![pattern]);
+        let nfa = pattern_always();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert_eq!(nfa.states.len(),3);
@@ -316,8 +357,7 @@ pub mod tests {
 
     #[test]
     fn nfa_pattern_never() {
-        let pattern = Pattern::never();
-        let nfa     = NfaTest::make(vec![pattern]);
+        let nfa = pattern_never();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert_eq!(nfa.states.len(),4);
@@ -327,10 +367,7 @@ pub mod tests {
 
     #[test]
     fn nfa_simple_rules() {
-        let a   = Pattern::char('a');
-        let b   = Pattern::char('b');
-        let ab  = &a >> &b;
-        let nfa = NfaTest::make(vec![a,ab]);
+        let nfa = simple_rules();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
@@ -350,14 +387,7 @@ pub mod tests {
 
     #[test]
     fn nfa_complex_rules() {
-        let a_word        = Pattern::char('a').many1();
-        let b_word        = Pattern::char('b').many1();
-        let space         = Pattern::char(' ');
-        let spaced_a_word = &space >> &a_word;
-        let spaced_b_word = &space >> &b_word;
-        let any           = Pattern::any();
-        let end           = Pattern::eof();
-        let nfa = NfaTest::make(vec![spaced_a_word,spaced_b_word,end,any]);
+        let nfa = complex_rules();
 
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
         assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(32)));
