@@ -77,7 +77,6 @@ impl NFA {
         self.states[source.id].add_link(Transition::new(symbols.clone(),target_state));
     }
 
-    // TODO [AA] Tests for these results.
     /// Transforms a pattern to an NFA using the algorithm described
     /// [here](https://www.youtube.com/watch?v=RYNN-tb9WxI).
     /// The asymptotic complexity is linear in number of symbols.
@@ -175,44 +174,206 @@ pub mod tests {
     // TODO [AA] Test the basic cases of patterns.
     // TODO [AA] Second group from flexer test
 
+    // === Test Utilities ===
+
+    #[allow(missing_docs)]
+    #[derive(Clone,Debug,Default,PartialEq)]
+    pub struct NfaTest {
+        nfa               : NFA,
+        start_state_id    : state::Identifier,
+        pattern_state_ids : Vec<state::Identifier>,
+        end_state_id      : state::Identifier,
+    }
+    #[allow(missing_docs)]
+    impl NfaTest {
+        pub fn make(patterns:Vec<Pattern>) -> Self {
+            let mut nfa          = NFA::default();
+            let start_state_id   = nfa.new_state();
+            let mut pattern_state_ids = vec![];
+            let end_state_id     = nfa.new_state();
+            for pattern in patterns {
+                let id = nfa.new_pattern(start_state_id,&pattern);
+                pattern_state_ids.push(id);
+                nfa.connect(id,end_state_id);
+            }
+            Self{nfa,start_state_id,pattern_state_ids,end_state_id}
+        }
+
+        pub fn id(id:usize) -> state::Identifier {
+            state::Identifier::new(id)
+        }
+
+        pub fn has_transition(&self, trigger:RangeInclusive<Symbol>, target:state::Identifier) -> bool {
+            self.states.iter().fold(false,|l,r| {
+                l || r.links().iter().find(|transition | {
+                    (transition.symbols == trigger) && transition.target_state == target
+                }).is_some()
+            })
+        }
+
+        pub fn has_epsilon(&self, from:state::Identifier, to:state::Identifier) -> bool {
+            self.states.iter().enumerate().fold(false,|l,(ix,r)| {
+                let state_has = ix == from.id && r.epsilon_links().iter().find(|ident| {
+                    **ident == to
+                }).is_some();
+                l || state_has
+            })
+        }
+    }
+    impl Deref for NfaTest {
+        type Target = NFA;
+
+        fn deref(&self) -> &Self::Target {
+            &self.nfa
+        }
+    }
+
+
+    // === The Tests ===
+
     #[test]
     fn nfa_pattern_range() {
+        let pattern = Pattern::range('a'..='z');
+        let nfa     = NfaTest::make(vec![pattern]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(123)));
+        assert_eq!(nfa.states.len(),4);
+        assert!(nfa.has_epsilon(nfa.start_state_id,NfaTest::id(2)));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[0],nfa.end_state_id));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('z'),nfa.pattern_state_ids[0]));
     }
 
     #[test]
     fn nfa_pattern_or() {
+        let pattern = Pattern::char('a') | Pattern::char('d');
+        let nfa     = NfaTest::make(vec![pattern]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(98)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(100)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(101)));
+        assert_eq!(nfa.states.len(),8);
+        assert!(nfa.has_epsilon(nfa.start_state_id,NfaTest::id(2)));
+        assert!(nfa.has_epsilon(NfaTest::id(2),NfaTest::id(3)));
+        assert!(nfa.has_epsilon(NfaTest::id(2),NfaTest::id(5)));
+        assert!(nfa.has_epsilon(NfaTest::id(6),nfa.pattern_state_ids[0]));
+        assert!(nfa.has_epsilon(NfaTest::id(4),nfa.pattern_state_ids[0]));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[0],nfa.end_state_id));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('a'),NfaTest::id(4)));
+        assert!(nfa.has_transition(Symbol::from('d')..=Symbol::from('d'),NfaTest::id(6)));
     }
 
     #[test]
     fn nfa_pattern_seq() {
+        let pattern = Pattern::char('a') >> Pattern::char('d');
+        let nfa     = NfaTest::make(vec![pattern]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(98)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(100)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(101)));
+        assert_eq!(nfa.states.len(),7);
+        assert!(nfa.has_epsilon(nfa.start_state_id,NfaTest::id(2)));
+        assert!(nfa.has_epsilon(NfaTest::id(2),NfaTest::id(3)));
+        assert!(nfa.has_epsilon(NfaTest::id(4),NfaTest::id(5)));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[0],nfa.end_state_id));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('a'),NfaTest::id(4)));
+        assert!(nfa.has_transition(Symbol::from('d')..=Symbol::from('d'),NfaTest::id(6)));
     }
 
     #[test]
     fn nfa_pattern_many() {
+        let pattern = Pattern::char('a').many();
+        let nfa     = NfaTest::make(vec![pattern]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(98)));
+        assert_eq!(nfa.states.len(),7);
+        assert!(nfa.has_epsilon(nfa.start_state_id,NfaTest::id(2)));
+        assert!(nfa.has_epsilon(NfaTest::id(2),NfaTest::id(3)));
+        assert!(nfa.has_epsilon(NfaTest::id(3),NfaTest::id(4)));
+        assert!(nfa.has_epsilon(NfaTest::id(5),nfa.pattern_state_ids[0]));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[0],NfaTest::id(3)));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[0],nfa.end_state_id));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('a'),NfaTest::id(5)));
     }
 
     #[test]
     fn nfa_pattern_always() {
+        let pattern = Pattern::always();
+        let nfa     = NfaTest::make(vec![pattern]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert_eq!(nfa.states.len(),3);
+        assert!(nfa.has_epsilon(nfa.start_state_id,nfa.pattern_state_ids[0]));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[0],nfa.end_state_id));
     }
 
     #[test]
     fn nfa_pattern_never() {
+        let pattern = Pattern::never();
+        let nfa     = NfaTest::make(vec![pattern]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert_eq!(nfa.states.len(),4);
+        assert!(nfa.has_epsilon(nfa.start_state_id,NfaTest::id(2)));
+        assert!(nfa.has_epsilon(NfaTest::id(3),nfa.end_state_id));
     }
 
     #[test]
     fn nfa_simple_rules() {
+        let a   = Pattern::char('a');
+        let b   = Pattern::char('b');
+        let ab  = &a >> &b;
+        let nfa = NfaTest::make(vec![a,ab]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(98)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(99)));
+        assert_eq!(nfa.states.len(),9);
+        assert!(nfa.has_epsilon(nfa.start_state_id,NfaTest::id(2)));
+        assert!(nfa.has_epsilon(nfa.start_state_id,NfaTest::id(4)));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[0],nfa.end_state_id));
+        assert!(nfa.has_epsilon(NfaTest::id(4),NfaTest::id(5)));
+        assert!(nfa.has_epsilon(NfaTest::id(6),NfaTest::id(7)));
+        assert!(nfa.has_epsilon(nfa.pattern_state_ids[1],nfa.end_state_id));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('a'),nfa.pattern_state_ids[0]));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('a'),NfaTest::id(6)));
+        assert!(nfa.has_transition(Symbol::from('b')..=Symbol::from('b'),nfa.pattern_state_ids[1]));
     }
 
     #[test]
     fn nfa_complex_rules() {
+        let a_word        = Pattern::char('a').many1();
+        let b_word        = Pattern::char('b').many1();
+        let space         = Pattern::char(' ');
+        let spaced_a_word = &space >> &a_word;
+        let spaced_b_word = &space >> &b_word;
+        let any           = Pattern::any();
+        let end           = Pattern::eof();
+        let nfa = NfaTest::make(vec![spaced_a_word,spaced_b_word,end,any]);
 
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(0)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(32)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(33)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(97)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(98)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::from(99)));
+        assert!(nfa.alphabet_segmentation.divisions().contains(&Symbol::EOF_CODE));
+        assert_eq!(nfa.states.len(),26);
+        assert!(nfa.has_transition(Symbol::from(' ')..=Symbol::from(' '),NfaTest::id(4)));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('a'),NfaTest::id(6)));
+        assert!(nfa.has_transition(Symbol::from('a')..=Symbol::from('a'),NfaTest::id(10)));
+        assert!(nfa.has_transition(Symbol::from(' ')..=Symbol::from(' '),NfaTest::id(14)));
+        assert!(nfa.has_transition(Symbol::from('b')..=Symbol::from('b'),NfaTest::id(16)));
+        assert!(nfa.has_transition(Symbol::from('b')..=Symbol::from('b'),NfaTest::id(20)));
+        assert!(nfa.has_transition(Symbol::EOF_CODE..=Symbol::EOF_CODE,nfa.pattern_state_ids[2]));
+        assert!(nfa.has_transition(Symbol::NULL..=Symbol::EOF_CODE,nfa.pattern_state_ids[3]));
     }
-
 }

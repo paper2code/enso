@@ -243,6 +243,7 @@ mod tests {
             Link::new(0..=10,1),
             Link::new(5..=15,2),
         ]);
+        assert_eq!(state.links().len(),2);
         let targets = state.targets(&alphabet);
         let expected_targets:Vec<Identifier> = vec![
             Identifier::new(1),
