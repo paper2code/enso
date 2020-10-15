@@ -174,10 +174,10 @@ pub mod tests {
     #[allow(missing_docs)]
     #[derive(Clone,Debug,Default,PartialEq)]
     pub struct NfaTest {
-        nfa               : NFA,
-        start_state_id    : state::Identifier,
-        pattern_state_ids : Vec<state::Identifier>,
-        end_state_id      : state::Identifier,
+        pub nfa               : NFA,
+        pub start_state_id    : state::Identifier,
+        pub pattern_state_ids : Vec<state::Identifier>,
+        pub end_state_id      : state::Identifier,
     }
     #[allow(missing_docs)]
     impl NfaTest {

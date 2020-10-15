@@ -183,92 +183,186 @@ impl RuleExecutable {
 
 #[cfg(test)]
 pub mod tests {
-    use crate::automata::state;
-
+    extern crate test;
     use super::*;
+    use crate::automata::state;
+    use crate::automata::nfa;
+    use test::Bencher;
 
-    // TODO [AA] Conversion tests from the nfa automata
-    // TODO [AA] Check that the alphabet stays the same
+    // === Utilities ===
 
     const INVALID:usize = state::Identifier::INVALID.id;
 
-    /// DFA automata that accepts newline '\n'.
-    pub fn newline() -> DFA {
-        DFA {
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(&[10,11]),
-            links:Matrix::from(vec![vec![INVALID,1,INVALID], vec![INVALID,INVALID,INVALID]]),
-            callbacks:vec![
-                None,
-                Some(RuleExecutable {priority:2, code:"group_0_rule_0".into()}),
-            ],
-        }
+    fn assert_same_alphabet(dfa:&DFA, nfa:&NFA) {
+        assert_eq!(dfa.alphabet_segmentation,nfa.alphabet_segmentation);
     }
 
-    /// DFA automata that accepts any letter a..=z.
-    pub fn letter() -> DFA {
-        DFA {
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(&[97,123]),
-            links:Matrix::from(vec![vec![INVALID,1,INVALID], vec![INVALID,INVALID,INVALID]]),
-            callbacks:vec![
-                None,
-                Some(RuleExecutable {priority:2, code:"group_0_rule_0".into()}),
-            ],
-        }
+    fn assert_same_matrix(dfa:&DFA, expected:&Matrix<state::Identifier>) {
+        assert_eq!(dfa.links,*expected);
     }
 
-    /// DFA automata that accepts any number of spaces ' '.
-    pub fn spaces() -> DFA {
-        DFA {
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(&[0,32,33]),
-            links:Matrix::from(vec![
-                vec![INVALID,1,INVALID],
-                vec![INVALID,2,INVALID],
-                vec![INVALID,2,INVALID],
-            ]),
-            callbacks:vec![
-                None,
-                Some(RuleExecutable {priority:3, code:"group_0_rule_0".into()}),
-                Some(RuleExecutable {priority:3, code:"group_0_rule_0".into()}),
-            ],
-        }
+
+    // === The Tests ===
+
+    #[test]
+    fn dfa_pattern_range() {
+        let nfa = nfa::tests::pattern_range();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![INVALID , 1       , INVALID],
+                vec![INVALID , INVALID , INVALID],
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
     }
 
-    /// DFA automata that accepts one letter a..=z or any many spaces.
-    pub fn letter_and_spaces() -> DFA {
-        DFA {
-            alphabet_segmentation:alphabet::Segmentation::from_divisions(&[32,33,97,123]),
-            links:Matrix::from(vec![
-                vec![INVALID,      1,INVALID,      2,INVALID],
-                vec![INVALID,      3,INVALID,INVALID,INVALID],
-                vec![INVALID,INVALID,INVALID,INVALID,INVALID],
-                vec![INVALID,      3,INVALID,INVALID,INVALID],
-            ]),
-            callbacks:vec![
-                None,
-                Some(RuleExecutable {priority:4, code:"group_0_rule_1".into()}),
-                Some(RuleExecutable {priority:4, code:"group_0_rule_0".into()}),
-                Some(RuleExecutable {priority:4, code:"group_0_rule_1".into()}),
-            ],
-        }
+    #[test]
+    fn dfa_pattern_or() {
+        let nfa = nfa::tests::pattern_or();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![INVALID , 1       , INVALID , 2       , INVALID],
+                vec![INVALID , INVALID , INVALID , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , INVALID , INVALID],
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
     }
 
-    // #[bench]
-    // fn bench_to_dfa_newline(bencher:&mut Bencher) {
-    //     bencher.iter(|| DFA::from(&newline()))
-    // }
-    //
-    // #[bench]
-    // fn bench_to_dfa_letter(bencher:&mut Bencher) {
-    //     bencher.iter(|| DFA::from(&letter()))
-    // }
-    //
-    // #[bench]
-    // fn bench_to_dfa_spaces(bencher:&mut Bencher) {
-    //     bencher.iter(|| DFA::from(&spaces()))
-    // }
-    //
-    // #[bench]
-    // fn bench_to_dfa_letter_and_spaces(bencher:&mut Bencher) {
-    //     bencher.iter(|| DFA::from(&letter_and_spaces()))
-    // }
+    #[test]
+    fn dfa_pattern_seq() {
+        let nfa = nfa::tests::pattern_seq();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![INVALID , 1       , INVALID , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , 2       , INVALID],
+                vec![INVALID , INVALID , INVALID , INVALID , INVALID],
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
+    }
+
+    #[test]
+    fn dfa_pattern_many() {
+        let nfa = nfa::tests::pattern_many();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![INVALID , 1 , INVALID],
+                vec![INVALID , 1 , INVALID],
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
+    }
+
+    #[test]
+    fn dfa_pattern_always() {
+        let nfa = nfa::tests::pattern_always();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![INVALID]
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
+    }
+
+    #[test]
+    fn dfa_pattern_never() {
+        let nfa = nfa::tests::pattern_never();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![INVALID]
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
+    }
+
+    #[test]
+    fn dfa_simple_rules() {
+        let nfa = nfa::tests::simple_rules();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![INVALID , 1       , INVALID , INVALID],
+                vec![INVALID , INVALID , 2       , INVALID],
+                vec![INVALID , INVALID , INVALID , INVALID],
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
+    }
+
+    #[test]
+    fn dfa_complex_rules() {
+        let nfa = nfa::tests::complex_rules();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa,&nfa);
+        let expected = Matrix::from(
+            vec![
+                vec![1       , 2       , 1       , 1       , 1       , 1       , 3]      ,
+                vec![INVALID , INVALID , INVALID , INVALID , INVALID , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , 4       , 5       , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , INVALID , INVALID , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , 6       , INVALID , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , INVALID , 7       , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , 6       , INVALID , INVALID , INVALID],
+                vec![INVALID , INVALID , INVALID , INVALID , 7       , INVALID , INVALID],
+            ]
+        );
+        assert_same_matrix(&dfa,&expected);
+    }
+
+
+    // === The Benchmarks ===
+
+    #[bench]
+    fn bench_to_dfa_pattern_range(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::pattern_range().nfa))
+    }
+
+    #[bench]
+    fn bench_to_dfa_pattern_or(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::pattern_or().nfa))
+    }
+
+    #[bench]
+    fn bench_to_dfa_pattern_seq(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::pattern_seq().nfa))
+    }
+
+    #[bench]
+    fn bench_to_dfa_pattern_many(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::pattern_many().nfa))
+    }
+
+    #[bench]
+    fn bench_to_dfa_pattern_always(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::pattern_always().nfa))
+    }
+
+    #[bench]
+    fn bench_to_dfa_pattern_never(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::pattern_never().nfa))
+    }
+
+    #[bench]
+    fn bench_to_dfa_simple_rules(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::simple_rules().nfa))
+    }
+
+    #[bench]
+    fn bench_to_dfa_complex_rules(bencher:&mut Bencher) {
+        bencher.iter(|| DFA::from(&nfa::tests::complex_rules().nfa))
+    }
 }
