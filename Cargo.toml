@@ -3,7 +3,6 @@
 members = [
     "lib/rust/ast",
     "lib/rust/flexer",
-    "lib/rust/flexible",
     "lib/rust/flexer-testing/definition",
     "lib/rust/flexer-testing/generation",
     "lib/rust/launcher-shims",

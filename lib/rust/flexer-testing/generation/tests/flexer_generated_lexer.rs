@@ -10,9 +10,9 @@
 
 //! This file contains tests for the generated lexer.
 
-use flexible::prelude::*;
+use flexer::prelude::*;
 
-use flexible::prelude::reader::decoder::DecoderUTF8;
+use flexer::prelude::reader::decoder::DecoderUTF8;
 use flexer_test_generation::generated::engine::TestLexer;
 use flexer_test_generation::generated::engine::Token;
 use flexer_test_generation::generated::engine::TokenStream;
@@ -31,7 +31,7 @@ fn run_test_on(str:impl AsRef<str>) -> TokenStream {
     let run_result = lexer.run(reader);
 
     match run_result.kind {
-        flexible::ResultKind::Success => run_result.tokens,
+        flexer::ResultKind::Success => run_result.tokens,
         _                           => default()
     }
 }

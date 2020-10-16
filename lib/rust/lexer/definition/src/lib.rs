@@ -26,6 +26,6 @@ pub mod library {
 
 /// A collection of functionality for working with the lexer definition.
 pub mod prelude {
-    pub use flexible::prelude::*;
-    pub use flexible::prelude::logger::*;
+    pub use flexer::prelude::*;
+    pub use flexer::prelude::logger::*;
 }

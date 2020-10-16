@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::io::prelude::*;
 use flexer_test_definition::TestLexer;
-use flexible::Definition;
-use flexible::State;
+use flexer::Definition;
+use flexer::State;
 
 
 

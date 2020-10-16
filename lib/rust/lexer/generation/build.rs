@@ -1,8 +1,8 @@
 use std::fs::File;
 use lexer_definition::lexer::EnsoLexer;
 use std::io::prelude::*;
-use flexible::Definition;
-use flexible::State;
+use flexer::Definition;
+use flexer::State;
 
 
 
