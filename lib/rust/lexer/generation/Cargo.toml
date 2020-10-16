@@ -13,7 +13,7 @@ bench      = true
 
 [dependencies]
 flexible           = { path = "../../flexible", version = "0.1.0" }
-enso-prelude     = { version = "0.1.4" }
+enso-prelude     = { version = "0.1.5" }
 lexer-definition = { path = "../definition", version = "0.1.0" }
 
 [build-dependencies]
