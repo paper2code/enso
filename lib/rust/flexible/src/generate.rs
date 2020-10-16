@@ -7,6 +7,7 @@ use syn::*;
 
 use crate::automata::dfa::Dfa;
 use crate::automata::nfa;
+use crate::automata::dfa;
 use crate::automata::state::State;
 use crate::group::Group;
 use crate::group::AutomatonData;
@@ -19,7 +20,6 @@ use std::result::Result;
 use std::fmt;
 
 use crate as flexer;
-
 
 
 // =======================
@@ -118,10 +118,10 @@ pub fn run_current_state_function() -> ImplItem {
                             reader.append_result(char);
                             self.logger.info(||format!("Result is {:?}.",reader.result()));
                         },
-                        Err(flexer::prelude::reader::Error::EOF) => {
+                        Err(flexible::prelude::reader::Error::EOF) => {
                             self.logger.info("Reached EOF.");
                         },
-                        Err(flexer::prelude::reader::Error::EndOfGroup) => {
+                        Err(flexible::prelude::reader::Error::EndOfGroup) => {
                             let current_state = self.current_state();
                             let group_name    = self.groups().group(current_state).name.as_str();
                             let err           = format!("Missing rules for state {}.", group_name);
@@ -181,18 +181,14 @@ pub fn automaton_for_group
 ( group    : &Group
 , registry : &group::Registry
 ) -> Result<Vec<ImplItem>,GenError> {
-    println!("Group Rules: {}",registry.rules_for(group.id).len());
     let mut nfa       = registry.to_nfa_from(group.id);
-    println!("NFA States: {}",nfa.states().len());
     let mut rules = Vec::with_capacity(nfa.states().len());
     for state in nfa.public_states().iter() {
-        if nfa.name(state.id()).is_some() {
+        if nfa.name(*state).is_some() {
             rules.push(rule_for_state(state,&nfa)?);
         }
     }
     let mut dfa             = Dfa::from(nfa.automaton());
-    println!("DFA Rows: {}",dfa.links.rows);
-    println!("DFA Cols: {}",dfa.links.rows);
     let dispatch_for_dfa    = dispatch_in_state(&dfa,group.id.into())?;
     let mut dfa_transitions = transitions_for_dfa(&mut dfa,&mut nfa,group.id.into())?;
     dfa_transitions.push(dispatch_for_dfa);
@@ -237,33 +233,19 @@ pub fn match_for_transition<S:BuildHasher>
 , data         : &mut AutomatonData
 , has_overlaps : &mut HashMap<usize,bool,S>
 ) -> Result<Expr,GenError> {
-    // println!("MATCH ===================================================");
-    // println!("Index: {}",state_ix);
     let overlaps          = *has_overlaps.get(&state_ix).unwrap_or(&false);
-    // println!("Rule: {:?}",data.rule_for_state(dfa.sources.get(state_ix).unwrap()));
-    // println!("Overlaps: {}",overlaps);
     let mut trigger_state = dfa.links[(state_ix,0)];
     let mut range_start   = enso_automata::symbol::SymbolIndex::min_value();
     let divisions         = dfa.alphabet.division_map.clone();
-    // println!("Num Divisions: {}",divisions.len());
     let mut branches      = Vec::with_capacity(divisions.len());
     for (sym, ix) in divisions.into_iter() {
-        // println!("SYMBOL =============================");
-        // println!("Symbol Index: {}",ix);
-        // println!("Symbol Value: {}",sym.index);
         let new_trigger_state = dfa.links[(state_ix,ix)];
         if new_trigger_state != trigger_state {
-            // println!("Generate Branch");
             let range_end             = if sym.index != 0 { sym.index - 1 } else { sym.index };
             let current_trigger_state = trigger_state;
             let current_range_start   = range_start;
             trigger_state             = new_trigger_state;
             range_start               = sym.index;
-            // println!("Range End: {:?}",range_end);
-            // println!("Current Trigger State: {:?}",current_trigger_state);
-            // println!("Current Range Start: {:?}",current_range_start);
-            // println!("Trigger State: {:?}",trigger_state);
-            // println!("Range Start: {:?}",range_start);
             let body =
                 branch_body(dfa,current_trigger_state,state_ix,data,has_overlaps,overlaps)?;
             branches.push(Branch::new(Some(current_range_start..=range_end),body));
@@ -272,7 +254,6 @@ pub fn match_for_transition<S:BuildHasher>
     let catch_all_branch_body = branch_body(dfa,trigger_state,state_ix,data,has_overlaps,overlaps)?;
     let catch_all_branch      = Branch::new(None,catch_all_branch_body);
     branches.push(catch_all_branch);
-    // println!("Branches Length: {}",branches.len());
     let arms:Vec<Arm> = branches.into_iter().map(Into::into).collect();
     let mut match_expr:ExprMatch = parse_quote! {
         match u64::from(reader.character()) {
@@ -292,42 +273,38 @@ pub fn branch_body<S:BuildHasher>
 , has_overlaps  : &mut HashMap<usize,bool,S>
 , rules_overlap : bool
 ) -> Result<Block,GenError> {
-    let sources        = dfa.sources.get(state_ix).expect("Internal error.");
-    let rule_for_state = data.rule_for_state(sources);
-    // println!("Callback: {:?}",callback_for_sources);
+    let sources             = dfa.sources.get(state_ix).expect("Internal error.");
+    let rule_name_for_state = data.name_for_dfa_state(sources);
     if target_state == State::<Dfa>::INVALID {
-        // println!("Target State Invalid");
-        match rule_for_state {
+        // println!("INVALID");
+        match rule_name_for_state {
             None => {
-                // println!("No Callback");
-                // println!("== Spacer ==");
+                // println!("NO RULE");
                 Ok(parse_quote! {{
                     StageStatus::ExitFail
                 }})
             },
             Some(rule) => {
-                // println!("Callback");
-                let rule:Expr = match parse_str(rule.as_str()) {
+                // println!("RULE");
+                let rule:Expr = match parse_str(rule) {
                     Ok(rule) => rule,
-                    Err(_) => return Err(GenError::BadExpression(rule))
+                    Err(_) => return Err(GenError::BadExpression(rule.to_string()))
                 };
                 if rules_overlap {
-                    // println!("Overlapping");
                     Ok(parse_quote! {{
                         let rule_bookmark    = self.bookmarks.rule_bookmark;
                         let matched_bookmark = self.bookmarks.matched_bookmark;
                         self.bookmarks.rewind(rule_bookmark,reader);
                         self.current_match = reader.pop_result();
-                        #rule;
+                        self.#rule(reader);
                         self.bookmarks.bookmark(matched_bookmark,reader);
                         StageStatus::ExitSuccess
                     }})
                 } else {
-                    // println!("Not Overlapping");
                     Ok(parse_quote! {{
                         let matched_bookmark = self.bookmarks.matched_bookmark;
                         self.current_match   = reader.pop_result();
-                        #rule;
+                        self.#rule(reader);
                         self.bookmarks.bookmark(matched_bookmark,reader);
                         StageStatus::ExitSuccess
                     }})
@@ -335,10 +312,10 @@ pub fn branch_body<S:BuildHasher>
             }
         }
     } else {
-        // println!("Target State Valid");
-        let target_state_has_no_rule = match rule_for_state {
-            Some(callback) => if 1 == 1 {
-                data.set_code(target_state.id(),callback);
+        // println!("VALID");
+        let target_state_has_no_rule = match rule_name_for_state {
+            Some(_) => if !dfa_has_rule_name_for(&data, dfa, target_state) {
+                dfa.sources[target_state.id()] = (*sources).clone();
                 has_overlaps.insert(target_state.id(),true);
                 true
             } else {
@@ -353,19 +330,22 @@ pub fn branch_body<S:BuildHasher>
         };
 
         if target_state_has_no_rule && !rules_overlap {
-            // println!("Target State No Rule and No Overlaps)");
             Ok(parse_quote! {{
                 let rule_bookmark = self.bookmarks.rule_bookmark;
                 self.bookmarks.bookmark(rule_bookmark,reader);
                 #ret
             }})
         } else {
-            // println!("Has Rule");
             Ok(parse_quote! {{
                 #ret
             }})
         }
     }
+}
+
+/// Checks if the DFA has a rule name for the provided target `state`.
+pub fn dfa_has_rule_name_for(nfa:&AutomatonData, dfa:&Dfa, state:dfa::State) -> bool {
+    nfa.name_for_dfa_state(&dfa.sources[state.id()]).is_some()
 }
 
 /// Generate the dispatch function for a given lexer state.
@@ -411,12 +391,12 @@ pub fn name_for_step(in_state:usize, to_state:usize) -> Ident {
 
 /// Generate an executable rule function for a given lexer state.
 pub fn rule_for_state(state:&nfa::State, automaton:&AutomatonData) -> Result<ImplItem,GenError> {
-    let state_name = automaton.name(state.id());
+    let state_name = automaton.name(*state);
     match state_name {
         None => unreachable_panic!("Rule for state requested, but state has none."),
         Some(name) => {
             let rule_name = str_to_ident(name)?;
-            let callback  = automaton.code(state.id()).expect("If it is named it has a callback.");
+            let callback  = automaton.code(*state).expect("If it is named it has a callback.");
             let code:Expr = match parse_str(callback) {
                 Ok(expr) => expr,
                 Err(_)   => return Err(GenError::BadExpression(callback.into()))

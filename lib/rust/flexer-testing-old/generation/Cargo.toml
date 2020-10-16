@@ -12,9 +12,9 @@ test       = true
 bench      = true
 
 [dependencies]
-flexible                 = { path = "../../flexible" , version = "0.1.0" }
+flexer                 = { path = "../../flexer" , version = "0.1.0" }
 flexer-test-definition = { path = "../definition", version = "0.1.0" }
 
 [build-dependencies]
-flexible                 = { path = "../../flexible" , version = "0.1.0" }
+flexer                 = { path = "../../flexer" , version = "0.1.0" }
 flexer-test-definition = { path = "../definition", version = "0.1.0" }

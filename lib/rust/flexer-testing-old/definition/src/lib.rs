@@ -25,14 +25,14 @@
 //! `lexer_generated_api_test` file. This is to present the full view of what each portion of the
 //! process looks like.
 
-use flexible::prelude::*;
+use flexer::prelude::*;
 
-use flexible::*;
-use flexible;
-use flexible::automata::pattern::Pattern;
-use flexible::group::Registry;
-use flexible::prelude::logger::Disabled;
-use flexible::prelude::reader::BookmarkManager;
+use flexer::*;
+use flexer;
+use flexer::automata::pattern::Pattern;
+use flexer::group::Registry;
+use flexer::prelude::logger::Disabled;
+use flexer::prelude::reader::BookmarkManager;
 
 
 
@@ -200,7 +200,7 @@ impl TestLexer {
 
 // === Trait Impls ===
 
-impl flexible::Definition for TestLexer {
+impl flexer::Definition for TestLexer {
     fn define() -> Self {
         let mut lexer = TestLexer::new();
 
@@ -247,7 +247,7 @@ pub struct TestState {
 
 // === Trait Impls ===
 
-impl flexible::State for TestState {
+impl flexer::State for TestState {
     fn new(_logger:&impl AnyLogger) -> Self {
         let mut lexer_states      = group::Registry::default();
         let initial_state         = lexer_states.define_group("ROOT",None);

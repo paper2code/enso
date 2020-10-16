@@ -118,8 +118,8 @@ impl Registry {
         let end       = nfa.new_state_exported();
         for (ix,state) in states.into_iter().enumerate() {
             nfa.add_public_state(state);
-            nfa.set_name(state.id(),group.callback_name(ix));
-            nfa.set_code(state.id(),callbacks.get(ix).unwrap().clone());
+            nfa.set_name(state,group.callback_name(ix));
+            nfa.set_code(state,callbacks.get(ix).unwrap().clone());
             nfa.connect(state,end);
         }
         nfa.add_public_state(end);
@@ -152,19 +152,19 @@ pub struct AutomatonData {
     /// The states defined in the automaton.
     states : Vec<nfa::State>,
     /// The names of callbacks, where provided.
-    transition_names : HashMap<usize,String>,
+    transition_names : HashMap<nfa::State,String>,
     /// The code to execute on a callback, where available.
-    callback_code : HashMap<usize,String>,
+    callback_code : HashMap<nfa::State,String>,
 }
 
 impl AutomatonData {
     /// Set the name for the provided `state_id`.
-    pub fn set_name(&mut self, state_id:usize,name:impl Str) {
+    pub fn set_name(&mut self, state_id:nfa::State,name:impl Str) {
         self.transition_names.insert(state_id,name.into());
     }
 
     /// Set the callback code for the provided `state_id`.
-    pub fn set_code(&mut self, state_id:usize,code:impl Str) {
+    pub fn set_code(&mut self, state_id:nfa::State,code:impl Str) {
         self.callback_code.insert(state_id,code.into());
     }
 
@@ -174,12 +174,12 @@ impl AutomatonData {
     }
 
     /// Get the name for the provided `state_id`, if present.
-    pub fn name(&self, state_id:usize) -> Option<&str> {
+    pub fn name(&self, state_id:nfa::State) -> Option<&str> {
         self.transition_names.get(&state_id).map(|s| s.as_str())
     }
 
     /// Get the callback code for the provided `state_id`, if present.
-    pub fn code(&self, state_id:usize) -> Option<&str> {
+    pub fn code(&self, state_id:nfa::State) -> Option<&str> {
         self.callback_code.get(&state_id).map(|s| s.as_str())
     }
 
@@ -196,12 +196,12 @@ impl AutomatonData {
     }
 
     /// Get a reference to the state names for this automaton.
-    pub fn names(&self) -> &HashMap<usize,String> {
+    pub fn names(&self) -> &HashMap<nfa::State,String> {
         &self.transition_names
     }
 
     /// Get a reference to the callbacks for this automaton.
-    pub fn callbacks(&self) -> &HashMap<usize,String> {
+    pub fn callbacks(&self) -> &HashMap<nfa::State,String> {
         &self.callback_code
     }
 
@@ -211,9 +211,16 @@ impl AutomatonData {
     }
 
     /// Get the rule name for a the provided state.
-    pub fn rule_for_state(&self, sources:&Vec<nfa::State>) -> Option<String> {
-        let rules = sources.iter().flat_map(|state| self.transition_names.get(&state.id())).collect_vec();
-        (rules.len() == 1).and_option(rules.first().map(|x| (*x).clone()))
+    pub fn name_for_dfa_state(&self, sources:&Vec<nfa::State>) -> Option<&str> {
+        let mut result = None;
+        for source in sources.iter() {
+            let name = self.name(*source);
+            if name.is_some() {
+                result = name;
+                break;
+            }
+        }
+        result
     }
 }
 
@@ -257,11 +264,11 @@ pub struct Identifier(usize);
 
 // === Trait Impls ===
 
-impl Into<Identifier> for usize {
-    fn into(self) -> Identifier {
-        Identifier(self)
-    }
-}
+// impl Into<Identifier> for usize {
+//     fn into(self) -> Identifier {
+//         Identifier(self)
+//     }
+// }
 
 impl From<usize> for Identifier {
     fn from(id:usize) -> Self {

@@ -273,13 +273,16 @@ pub fn branch_body<S:BuildHasher>
 , rules_overlap : bool
 ) -> Result<Block,GenError> {
     if target_state == Identifier::INVALID {
+        // println!("INVALID");
         match maybe_state {
             None => {
+                // println!("NO RULE");
                 Ok(parse_quote! {{
                     StageStatus::ExitFail
                 }})
             },
             Some(rule_exec) => {
+                // println!("RULE");
                 let rule:Expr = match parse_str(rule_exec.code.as_str()) {
                     Ok(rule) => rule,
                     Err(_)   => return Err(GenError::BadExpression(rule_exec.code.clone()))
@@ -306,6 +309,7 @@ pub fn branch_body<S:BuildHasher>
             }
         }
     } else {
+        // println!("VALID");
         let target_state_has_no_rule = match maybe_state {
             Some(state) => if !dfa.has_rule_for(target_state) {
                 dfa.callbacks[target_state.id] = Some(state.clone());

@@ -280,3 +280,10 @@ impl flexible::State for TestState {
         generate::specialize(self,"TestLexer","TokenStream")
     }
 }
+
+#[test]
+fn generate_new() {
+    let lexer = TestLexer::define();
+    let result = lexer.specialize();
+    assert!(result.is_ok())
+}
