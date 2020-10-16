@@ -5,7 +5,7 @@
 //! occurring in the logging output.
 
 use crate::prelude::*;
-use flexer::*;
+use enso_flexer::*;
 
 use crate::library::token::BlockType;
 use crate::library::token::Token;
@@ -13,14 +13,14 @@ use crate::library::token;
 use crate::library::escape;
 use crate::library::escape::EscapeSequence;
 
-use flexer::automata::pattern::Pattern;
-use flexer::automata::symbol::Symbol;
-use flexer::group::Group;
-use flexer::group::Registry;
-use flexer::prelude::logger::Disabled;
-use flexer::prelude::reader;
-use flexer::State as FlexerState;
-use flexer;
+use enso_flexer::automata::pattern::Pattern;
+use enso_flexer::automata::symbol::Symbol;
+use enso_flexer::group::Group;
+use enso_flexer::group::Registry;
+use enso_flexer::prelude::logger::Disabled;
+use enso_flexer::prelude::reader;
+use enso_flexer::State as FlexerState;
+use enso_flexer;
 use std::collections::VecDeque;
 use std::cmp::Ordering;
 
@@ -31,7 +31,7 @@ use std::cmp::Ordering;
 // ====================
 
 type Logger = Disabled;
-type Flexer = flexer::Flexer<State<Logger>,token::Stream,Logger>;
+type Flexer = enso_flexer::Flexer<State<Logger>,token::Stream,Logger>;
 
 
 
@@ -1761,7 +1761,7 @@ impl EnsoLexer {
 
 // === Trait Impls ===
 
-impl flexer::Definition for EnsoLexer {
+impl enso_flexer::Definition for EnsoLexer {
     fn define() -> Self {
         let mut lexer = EnsoLexer::new();
 
@@ -1892,7 +1892,7 @@ impl<Logger:AnyLogger<Owned=Logger>> State<Logger> {
 
 // === Trait Impls ===
 
-impl<Logger:AnyLogger<Owned=Logger>> flexer::State for State<Logger> {
+impl<Logger:AnyLogger<Owned=Logger>> enso_flexer::State for State<Logger> {
     fn new(parent_logger:&impl AnyLogger) -> Self {
         let logger                  = <Logger>::sub(parent_logger, "State");
         let bookmarks               = default();

@@ -2,11 +2,11 @@
 
 #![allow(dead_code)]
 
-use flexer::*;
+use enso_flexer::*;
 use lexer_definition::library::*;
 
-use flexer::prelude::reader::decoder::DecoderUTF8;
-use flexer::prelude::Reader;
+use enso_flexer::prelude::reader::decoder::DecoderUTF8;
+use enso_flexer::prelude::Reader;
 use lexer::generated::engine::EnsoLexer;
 use lexer_definition::library::token::Token;
 
