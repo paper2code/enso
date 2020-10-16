@@ -3,7 +3,7 @@ layout: developer-doc
 title: Lexer
 category: syntax
 tags: [parser, lexer]
-order: 4
+order: 3
 ---
 
 # Lexer
@@ -16,7 +16,7 @@ identify blocks
 <!-- MarkdownTOC levels="2,3" autolink="true" -->
 
 - [Lexer Architecture](#lexer-architecture)
-  - [Libraries in the Lexer Definition](#libraries-in-the-lexer-definition)
+    - [Libraries in the Lexer Definition](#libraries-in-the-lexer-definition)
 - [Lexer Functionality](#lexer-functionality)
 - [The Lexer AST](#the-lexer-ast)
 
