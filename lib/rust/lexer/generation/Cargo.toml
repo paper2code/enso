@@ -12,10 +12,10 @@ test       = true
 bench      = true
 
 [dependencies]
-enso-flexer      = { version = "0.1.0" }
+enso-flexer      = { version = "0.1.1" }
 enso-prelude     = { version = "0.1.5" }
 lexer-definition = { path = "../definition", version = "0.1.0" }
 
 [build-dependencies]
-enso-flexer      = { version = "0.1.0" }
+enso-flexer      = { version = "0.1.1" }
 lexer-definition = { path = "../definition", version = "0.1.0" }
