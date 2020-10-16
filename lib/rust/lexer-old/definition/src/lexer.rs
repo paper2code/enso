@@ -5,7 +5,7 @@
 //! occurring in the logging output.
 
 use crate::prelude::*;
-use flexible::*;
+use flexer::*;
 
 use crate::library::token::BlockType;
 use crate::library::token::Token;
@@ -13,16 +13,16 @@ use crate::library::token;
 use crate::library::escape;
 use crate::library::escape::EscapeSequence;
 
-use flexible::automata::pattern::Pattern;
-use flexible::group::Group;
-use flexible::group::Registry;
-use flexible::prelude::logger::Enabled;
-use flexible::prelude::reader;
-use flexible::State as FlexerState;
-use flexible;
+use flexer::automata::pattern::Pattern;
+use flexer::group::Group;
+use flexer::group::Registry;
+use flexer::prelude::logger::Enabled;
+use flexer::prelude::reader;
+use flexer::State as FlexerState;
+use flexer;
 use std::collections::VecDeque;
 use std::cmp::Ordering;
-use flexible::automata::symbol::Symbol;
+use flexer::automata::symbol::Symbol;
 
 
 
@@ -31,7 +31,7 @@ use flexible::automata::symbol::Symbol;
 // ====================
 
 type Logger = Enabled;
-type Flexer = flexible::Flexer<State<Logger>,token::Stream,Logger>;
+type Flexer = flexer::Flexer<State<Logger>,token::Stream,Logger>;
 
 
 
@@ -1239,7 +1239,7 @@ impl EnsoLexer {
         let escape_u21           = l!("\\u{") >> &unicode_escape_char.many() >> l!("}");
         let escape_u32           = l!("\\U") >> Pattern::repeat_between(&unicode_escape_char,0,9);
         let escape_slash         = l!("\\\\");
-        let escape_invalid       = &backslash >> Pattern::not_symbol(Symbol::eof()).opt();
+        let escape_invalid       = &backslash >> Pattern::not_symbol(Symbol::EOF_CODE).opt();
         let escape_format_quote  = &backslash >> &format_quote;
         let escape_raw_quote     = &backslash >> &raw_quote;
         let escape_backtick      = &backslash >> &interpolate_quote;
@@ -1761,7 +1761,7 @@ impl EnsoLexer {
 
 // === Trait Impls ===
 
-impl flexible::Definition for EnsoLexer {
+impl flexer::Definition for EnsoLexer {
     fn define() -> Self {
         let mut lexer = EnsoLexer::new();
 
@@ -1892,7 +1892,7 @@ impl<Logger:AnyLogger<Owned=Logger>> State<Logger> {
 
 // === Trait Impls ===
 
-impl<Logger:AnyLogger<Owned=Logger>> flexible::State for State<Logger> {
+impl<Logger:AnyLogger<Owned=Logger>> flexer::State for State<Logger> {
     fn new(parent_logger:&impl AnyLogger) -> Self {
         let logger                  = <Logger>::sub(parent_logger, "State");
         let bookmarks               = default();
