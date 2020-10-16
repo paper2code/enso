@@ -168,6 +168,7 @@ impl NFA {
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use crate::automata::state::Identifier;
 
     // === Test Utilities ===
 
@@ -188,6 +189,21 @@ pub mod tests {
             let end_state_id     = nfa.new_state();
             for pattern in patterns {
                 let id = nfa.new_pattern(start_state_id,&pattern);
+                pattern_state_ids.push(id);
+                nfa.connect(id,end_state_id);
+            }
+            Self{nfa,start_state_id,pattern_state_ids,end_state_id}
+        }
+
+        pub fn make_rules(rules:Vec<Rule>) -> Self {
+            let mut nfa          = NFA::default();
+            let start_state_id   = nfa.new_state();
+            let mut pattern_state_ids = vec![];
+            let end_state_id     = nfa.new_state();
+            for rule in rules.iter() {
+                let id = nfa.new_pattern(start_state_id,&rule.pattern);
+                nfa.states[id.id].set_callback(&rule.callback);
+                nfa.states[id.id].set_name(Some(rule.name.clone()));
                 pattern_state_ids.push(id);
                 nfa.connect(id,end_state_id);
             }
@@ -220,6 +236,23 @@ pub mod tests {
 
         fn deref(&self) -> &Self::Target {
             &self.nfa
+        }
+    }
+
+    #[allow(missing_docs)]
+    #[derive(Clone,Debug,PartialEq)]
+    pub struct Rule {
+        pattern : Pattern,
+        callback : String,
+        name : String
+    }
+    #[allow(missing_docs)]
+    impl Rule {
+        pub fn new(pattern:&Pattern, callback:impl Str, name:impl Str) -> Rule {
+            let pattern  = pattern.clone();
+            let callback = callback.into();
+            let name     = name.into();
+            Rule{pattern,callback,name}
         }
     }
 
@@ -272,6 +305,16 @@ pub mod tests {
         let any           = Pattern::any();
         let end           = Pattern::eof();
         NfaTest::make(vec![spaced_a_word,spaced_b_word,end,any])
+    }
+
+    pub fn named_rules() -> NfaTest {
+        let a_word = Pattern::char('a').many1();
+        let b_word = Pattern::char('b').many1();
+        let rules = vec![
+            Rule::new(&a_word,"self.on_a_word(reader)","rule_1"),
+            Rule::new(&b_word,"self.on_b_word(reader)","rule_2"),
+        ];
+        NfaTest::make_rules(rules)
     }
 
 
@@ -405,5 +448,31 @@ pub mod tests {
         assert!(nfa.has_transition(Symbol::from('b')..=Symbol::from('b'),NfaTest::id(20)));
         assert!(nfa.has_transition(Symbol::EOF_CODE..=Symbol::EOF_CODE,nfa.pattern_state_ids[2]));
         assert!(nfa.has_transition(Symbol::NULL..=Symbol::EOF_CODE,nfa.pattern_state_ids[3]));
+    }
+
+    #[test]
+    fn nfa_named_rules() {
+        let nfa = named_rules();
+
+        assert_eq!(nfa.states.len(),18);
+        for (ix, state) in nfa.states.iter().enumerate() {
+            if nfa.pattern_state_ids.contains(&Identifier::new(ix)) {
+                assert!(state.name().is_some());
+                assert!(!state.callback().is_empty());
+            } else {
+                assert!(state.name().is_none());
+                assert!(state.callback().is_empty());
+            }
+        }
+        assert_eq!(nfa.states[nfa.pattern_state_ids[0].id].name(),&Some("rule_1".into()));
+        assert_eq!(
+            nfa.states[nfa.pattern_state_ids[0].id].callback()
+            ,&"self.on_a_word(reader)".to_string()
+        );
+        assert_eq!(nfa.states[nfa.pattern_state_ids[1].id].name(),&Some("rule_2".into()));
+        assert_eq!(
+            nfa.states[nfa.pattern_state_ids[1].id].callback()
+            ,&"self.on_b_word(reader)".to_string()
+        );
     }
 }

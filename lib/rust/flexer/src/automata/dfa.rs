@@ -324,6 +324,19 @@ pub mod tests {
         assert_same_matrix(&dfa,&expected);
     }
 
+    #[test]
+    fn dfa_named_rules() {
+        let nfa = nfa::tests::named_rules();
+        let dfa = DFA::from(&nfa.nfa);
+        assert_same_alphabet(&dfa, &nfa);
+        assert_eq!(dfa.callbacks.len(),5);
+        assert_eq!(dfa.callbacks[0],None);
+        assert_eq!(dfa.callbacks[1],Some(RuleExecutable::new(5,"rule_1")));
+        assert_eq!(dfa.callbacks[2],Some(RuleExecutable::new(5,"rule_2")));
+        assert_eq!(dfa.callbacks[3],Some(RuleExecutable::new(5,"rule_1")));
+        assert_eq!(dfa.callbacks[4],Some(RuleExecutable::new(5,"rule_2")));
+    }
+
 
     // === The Benchmarks ===
 
