@@ -1,0 +1,1077 @@
+Benchmarking Integer/1KB
+Benchmarking Integer/1KB: Warming up for 5.0000 s
+Benchmarking Integer/1KB: Collecting 100 samples in estimated 60.004 s (571k iterations)
+Benchmarking Integer/1KB: Analyzing
+Integer/1KB             time:   [106.93 us 107.40 us 107.88 us]
+                        thrpt:  [9.0523 MiB/s 9.0929 MiB/s 9.1331 MiB/s]
+                 change:
+                        time:   [-0.1684% +0.6492% +1.5960%] (p = 0.16 > 0.05)
+                        thrpt:  [-1.5709% -0.6451% +0.1687%]
+                        No change in performance detected.
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Integer/100KB
+Benchmarking Integer/100KB: Warming up for 5.0000 s
+Benchmarking Integer/100KB: Collecting 100 samples in estimated 103.51 s (10k iterations)
+Benchmarking Integer/100KB: Analyzing
+Integer/100KB           time:   [9.8499 ms 9.8721 ms 9.8961 ms]
+                        thrpt:  [9.8681 MiB/s 9.8921 MiB/s 9.9144 MiB/s]
+                 change:
+                        time:   [-1.1458% -0.6178% -0.0454%] (p = 0.03 < 0.05)
+                        thrpt:  [+0.0454% +0.6216% +1.1591%]
+                        Change within noise threshold.
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low mild
+  1 (1.00%) high mild
+  3 (3.00%) high severe
+Benchmarking Integer/1MB
+Benchmarking Integer/1MB: Warming up for 5.0000 s
+Benchmarking Integer/1MB: Collecting 100 samples in estimated 67.531 s (600 iterations)
+Benchmarking Integer/1MB: Analyzing
+Integer/1MB             time:   [111.68 ms 112.07 ms 112.48 ms]
+                        thrpt:  [8.8902 MiB/s 8.9234 MiB/s 8.9544 MiB/s]
+                 change:
+                        time:   [-2.1111% -1.6245% -1.1169%] (p = 0.00 < 0.05)
+                        thrpt:  [+1.1295% +1.6513% +2.1566%]
+                        Performance has improved.
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Integer/10MB
+Benchmarking Integer/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 127.8s, or reduce sample count to 40.
+Benchmarking Integer/10MB: Collecting 100 samples in estimated 127.84 s (100 iterations)
+Benchmarking Integer/10MB: Analyzing
+Integer/10MB            time:   [1.2704 s 1.2770 s 1.2835 s]
+                        thrpt:  [7.7910 MiB/s 7.8306 MiB/s 7.8718 MiB/s]
+                 change:
+                        time:   [-1.7027% -0.9752% -0.2984%] (p = 0.01 < 0.05)
+                        thrpt:  [+0.2992% +0.9848% +1.7322%]
+                        Change within noise threshold.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) low mild
+
+Benchmarking Integer Explicit Base/1KB
+Benchmarking Integer Explicit Base/1KB: Warming up for 5.0000 s
+Benchmarking Integer Explicit Base/1KB: Collecting 100 samples in estimated 60.235 s (662k iterations)
+Benchmarking Integer Explicit Base/1KB: Analyzing
+Integer Explicit Base/1KB
+                        time:   [89.363 us 89.653 us 89.953 us]
+                        thrpt:  [10.856 MiB/s 10.893 MiB/s 10.928 MiB/s]
+                 change:
+                        time:   [-3.7262% -2.9083% -2.1591%] (p = 0.00 < 0.05)
+                        thrpt:  [+2.2067% +2.9954% +3.8705%]
+                        Performance has improved.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Integer Explicit Base/100KB
+Benchmarking Integer Explicit Base/100KB: Warming up for 5.0000 s
+Benchmarking Integer Explicit Base/100KB: Collecting 100 samples in estimated 78.776 s (10k iterations)
+Benchmarking Integer Explicit Base/100KB: Analyzing
+Integer Explicit Base/100KB
+                        time:   [8.3395 ms 8.4937 ms 8.6668 ms]
+                        thrpt:  [11.268 MiB/s 11.498 MiB/s 11.710 MiB/s]
+                 change:
+                        time:   [+1.9220% +3.9059% +5.8452%] (p = 0.00 < 0.05)
+                        thrpt:  [-5.5224% -3.7591% -1.8857%]
+                        Performance has regressed.
+Found 7 outliers among 100 measurements (7.00%)
+  5 (5.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Integer Explicit Base/1MB
+Benchmarking Integer Explicit Base/1MB: Warming up for 5.0000 s
+Benchmarking Integer Explicit Base/1MB: Collecting 100 samples in estimated 61.992 s (700 iterations)
+Benchmarking Integer Explicit Base/1MB: Analyzing
+Integer Explicit Base/1MB
+                        time:   [86.670 ms 87.039 ms 87.462 ms]
+                        thrpt:  [11.434 MiB/s 11.489 MiB/s 11.538 MiB/s]
+                 change:
+                        time:   [-0.7747% -0.1561% +0.4632%] (p = 0.63 > 0.05)
+                        thrpt:  [-0.4610% +0.1564% +0.7808%]
+                        No change in performance detected.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Integer Explicit Base/10MB
+Benchmarking Integer Explicit Base/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 100.0s, or reduce sample count to 50.
+Benchmarking Integer Explicit Base/10MB: Collecting 100 samples in estimated 100.05 s (100 iterations)
+Benchmarking Integer Explicit Base/10MB: Analyzing
+Integer Explicit Base/10MB
+                        time:   [987.54 ms 996.75 ms 1.0066 s]
+                        thrpt:  [9.9347 MiB/s 10.033 MiB/s 10.126 MiB/s]
+                 change:
+                        time:   [+2.7764% +3.7452% +4.9213%] (p = 0.00 < 0.05)
+                        thrpt:  [-4.6905% -3.6100% -2.7014%]
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+
+Benchmarking Decimal/1KB
+Benchmarking Decimal/1KB: Warming up for 5.0000 s
+Benchmarking Decimal/1KB: Collecting 100 samples in estimated 60.313 s (636k iterations)
+Benchmarking Decimal/1KB: Analyzing
+Decimal/1KB             time:   [93.996 us 94.289 us 94.598 us]
+                        thrpt:  [10.323 MiB/s 10.357 MiB/s 10.389 MiB/s]
+                 change:
+                        time:   [-2.6677% -2.0196% -1.3457%] (p = 0.00 < 0.05)
+                        thrpt:  [+1.3640% +2.0612% +2.7408%]
+                        Performance has improved.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking Decimal/100KB
+Benchmarking Decimal/100KB: Warming up for 5.0000 s
+Benchmarking Decimal/100KB: Collecting 100 samples in estimated 86.042 s (10k iterations)
+Benchmarking Decimal/100KB: Analyzing
+Decimal/100KB           time:   [8.3904 ms 8.4186 ms 8.4494 ms]
+                        thrpt:  [11.558 MiB/s 11.600 MiB/s 11.639 MiB/s]
+                 change:
+                        time:   [-4.0491% -3.2067% -2.4265%] (p = 0.00 < 0.05)
+                        thrpt:  [+2.4868% +3.3130% +4.2200%]
+                        Performance has improved.
+Found 9 outliers among 100 measurements (9.00%)
+  1 (1.00%) low mild
+  5 (5.00%) high mild
+  3 (3.00%) high severe
+Benchmarking Decimal/1MB
+Benchmarking Decimal/1MB: Warming up for 5.0000 s
+Benchmarking Decimal/1MB: Collecting 100 samples in estimated 69.499 s (700 iterations)
+Benchmarking Decimal/1MB: Analyzing
+Decimal/1MB             time:   [97.500 ms 97.842 ms 98.198 ms]
+                        thrpt:  [10.184 MiB/s 10.221 MiB/s 10.256 MiB/s]
+                 change:
+                        time:   [-1.9419% -1.3853% -0.8263%] (p = 0.00 < 0.05)
+                        thrpt:  [+0.8331% +1.4047% +1.9804%]
+                        Change within noise threshold.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking Decimal/10MB
+Benchmarking Decimal/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 107.8s, or reduce sample count to 50.
+Benchmarking Decimal/10MB: Collecting 100 samples in estimated 107.83 s (100 iterations)
+Benchmarking Decimal/10MB: Analyzing
+Decimal/10MB            time:   [1.0567 s 1.0599 s 1.0633 s]
+                        thrpt:  [9.4051 MiB/s 9.4344 MiB/s 9.4634 MiB/s]
+                 change:
+                        time:   [-0.6348% -0.1528% +0.2998%] (p = 0.51 > 0.05)
+                        thrpt:  [-0.2989% +0.1531% +0.6389%]
+                        No change in performance detected.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking Decimal Explicit Base/1KB
+Benchmarking Decimal Explicit Base/1KB: Warming up for 5.0000 s
+Benchmarking Decimal Explicit Base/1KB: Collecting 100 samples in estimated 60.352 s (758k iterations)
+Benchmarking Decimal Explicit Base/1KB: Analyzing
+Decimal Explicit Base/1KB
+                        time:   [79.411 us 79.692 us 79.992 us]
+                        thrpt:  [12.208 MiB/s 12.254 MiB/s 12.298 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high severe
+Benchmarking Decimal Explicit Base/100KB
+Benchmarking Decimal Explicit Base/100KB: Warming up for 5.0000 s
+Benchmarking Decimal Explicit Base/100KB: Collecting 100 samples in estimated 69.103 s (10k iterations)
+Benchmarking Decimal Explicit Base/100KB: Analyzing
+Decimal Explicit Base/100KB
+                        time:   [6.8286 ms 6.8456 ms 6.8642 ms]
+                        thrpt:  [14.227 MiB/s 14.265 MiB/s 14.301 MiB/s]
+Found 9 outliers among 100 measurements (9.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+  4 (4.00%) high severe
+Benchmarking Decimal Explicit Base/1MB
+Benchmarking Decimal Explicit Base/1MB: Warming up for 5.0000 s
+Benchmarking Decimal Explicit Base/1MB: Collecting 100 samples in estimated 66.146 s (900 iterations)
+Benchmarking Decimal Explicit Base/1MB: Analyzing
+Decimal Explicit Base/1MB
+                        time:   [73.182 ms 73.458 ms 73.751 ms]
+                        thrpt:  [13.559 MiB/s 13.613 MiB/s 13.664 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Decimal Explicit Base/10MB
+Benchmarking Decimal Explicit Base/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 79.1s, or reduce sample count to 70.
+Benchmarking Decimal Explicit Base/10MB: Collecting 100 samples in estimated 79.146 s (100 iterations)
+Benchmarking Decimal Explicit Base/10MB: Analyzing
+Decimal Explicit Base/10MB
+                        time:   [781.25 ms 784.33 ms 787.77 ms]
+                        thrpt:  [12.694 MiB/s 12.750 MiB/s 12.800 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) high mild
+  3 (3.00%) high severe
+
+Benchmarking Number Error Base/1KB
+Benchmarking Number Error Base/1KB: Warming up for 5.0000 s
+Benchmarking Number Error Base/1KB: Collecting 100 samples in estimated 60.707 s (414k iterations)
+Benchmarking Number Error Base/1KB: Analyzing
+Number Error Base/1KB   time:   [146.93 us 147.86 us 148.89 us]
+                        thrpt:  [6.5592 MiB/s 6.6047 MiB/s 6.6464 MiB/s]
+                 change:
+                        time:   [+4.4706% +6.2319% +8.1567%] (p = 0.00 < 0.05)
+                        thrpt:  [-7.5416% -5.8663% -4.2793%]
+                        Performance has regressed.
+Found 10 outliers among 100 measurements (10.00%)
+  4 (4.00%) high mild
+  6 (6.00%) high severe
+Benchmarking Number Error Base/100KB
+Benchmarking Number Error Base/100KB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 71.4s, enable flat sampling, or reduce sample count to 60.
+Benchmarking Number Error Base/100KB: Collecting 100 samples in estimated 71.429 s (5050 iterations)
+Benchmarking Number Error Base/100KB: Analyzing
+Number Error Base/100KB time:   [14.007 ms 14.050 ms 14.095 ms]
+                        thrpt:  [6.9284 MiB/s 6.9509 MiB/s 6.9721 MiB/s]
+                 change:
+                        time:   [+0.6574% +1.7590% +2.8388%] (p = 0.00 < 0.05)
+                        thrpt:  [-2.7605% -1.7286% -0.6531%]
+                        Change within noise threshold.
+Found 7 outliers among 100 measurements (7.00%)
+  1 (1.00%) low mild
+  4 (4.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Number Error Base/1MB
+Benchmarking Number Error Base/1MB: Warming up for 5.0000 s
+Benchmarking Number Error Base/1MB: Collecting 100 samples in estimated 63.763 s (400 iterations)
+Benchmarking Number Error Base/1MB: Analyzing
+Number Error Base/1MB   time:   [157.51 ms 158.12 ms 158.76 ms]
+                        thrpt:  [6.2986 MiB/s 6.3243 MiB/s 6.3489 MiB/s]
+                 change:
+                        time:   [+3.1927% +3.7483% +4.3498%] (p = 0.00 < 0.05)
+                        thrpt:  [-4.1685% -3.6129% -3.0939%]
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking Number Error Base/10MB
+Benchmarking Number Error Base/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 176.1s, or reduce sample count to 30.
+Benchmarking Number Error Base/10MB: Collecting 100 samples in estimated 176.14 s (100 iterations)
+Benchmarking Number Error Base/10MB: Analyzing
+Number Error Base/10MB  time:   [1.7484 s 1.7529 s 1.7575 s]
+                        thrpt:  [5.6900 MiB/s 5.7049 MiB/s 5.7194 MiB/s]
+                 change:
+                        time:   [+5.5966% +5.9286% +6.2864%] (p = 0.00 < 0.05)
+                        thrpt:  [-5.9145% -5.5968% -5.3000%]
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+
+Benchmarking Text Format Line/1KB
+Benchmarking Text Format Line/1KB: Warming up for 5.0000 s
+Benchmarking Text Format Line/1KB: Collecting 100 samples in estimated 60.087 s (1.0M iterations)
+Benchmarking Text Format Line/1KB: Analyzing
+Text Format Line/1KB    time:   [59.109 us 59.301 us 59.504 us]
+                        thrpt:  [16.412 MiB/s 16.468 MiB/s 16.521 MiB/s]
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Text Format Line/100KB
+Benchmarking Text Format Line/100KB: Warming up for 5.0000 s
+Benchmarking Text Format Line/100KB: Collecting 100 samples in estimated 63.787 s (15k iterations)
+Benchmarking Text Format Line/100KB: Analyzing
+Text Format Line/100KB  time:   [4.1930 ms 4.2576 ms 4.3331 ms]
+                        thrpt:  [22.537 MiB/s 22.937 MiB/s 23.290 MiB/s]
+Found 12 outliers among 100 measurements (12.00%)
+  1 (1.00%) low severe
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+  6 (6.00%) high severe
+Benchmarking Text Format Line/1MB
+Benchmarking Text Format Line/1MB: Warming up for 5.0000 s
+Benchmarking Text Format Line/1MB: Collecting 100 samples in estimated 61.434 s (1300 iterations)
+Benchmarking Text Format Line/1MB: Analyzing
+Text Format Line/1MB    time:   [47.276 ms 47.794 ms 48.320 ms]
+                        thrpt:  [20.696 MiB/s 20.923 MiB/s 21.153 MiB/s]
+Benchmarking Text Format Line/10MB
+Benchmarking Text Format Line/10MB: Warming up for 5.0000 s
+Benchmarking Text Format Line/10MB: Collecting 100 samples in estimated 98.411 s (200 iterations)
+Benchmarking Text Format Line/10MB: Analyzing
+Text Format Line/10MB   time:   [498.84 ms 503.27 ms 507.93 ms]
+                        thrpt:  [19.688 MiB/s 19.870 MiB/s 20.046 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking Text Format Inline Block/1KB
+Benchmarking Text Format Inline Block/1KB: Warming up for 5.0000 s
+Benchmarking Text Format Inline Block/1KB: Collecting 100 samples in estimated 60.031 s (1.1M iterations)
+Benchmarking Text Format Inline Block/1KB: Analyzing
+Text Format Inline Block/1KB
+                        time:   [52.817 us 53.300 us 53.781 us]
+                        thrpt:  [18.158 MiB/s 18.322 MiB/s 18.490 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high severe
+Benchmarking Text Format Inline Block/100KB
+Benchmarking Text Format Inline Block/100KB: Warming up for 5.0000 s
+Benchmarking Text Format Inline Block/100KB: Collecting 100 samples in estimated 74.795 s (20k iterations)
+Benchmarking Text Format Inline Block/100KB: Analyzing
+Text Format Inline Block/100KB
+                        time:   [3.6876 ms 3.7088 ms 3.7364 ms]
+                        thrpt:  [26.136 MiB/s 26.331 MiB/s 26.482 MiB/s]
+Found 12 outliers among 100 measurements (12.00%)
+  1 (1.00%) low mild
+  7 (7.00%) high mild
+  4 (4.00%) high severe
+Benchmarking Text Format Inline Block/1MB
+Benchmarking Text Format Inline Block/1MB: Warming up for 5.0000 s
+Benchmarking Text Format Inline Block/1MB: Collecting 100 samples in estimated 62.592 s (1600 iterations)
+Benchmarking Text Format Inline Block/1MB: Analyzing
+Text Format Inline Block/1MB
+                        time:   [39.523 ms 39.761 ms 40.009 ms]
+                        thrpt:  [24.994 MiB/s 25.150 MiB/s 25.302 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking Text Format Inline Block/10MB
+Benchmarking Text Format Inline Block/10MB: Warming up for 5.0000 s
+Benchmarking Text Format Inline Block/10MB: Collecting 100 samples in estimated 85.435 s (200 iterations)
+Benchmarking Text Format Inline Block/10MB: Analyzing
+Text Format Inline Block/10MB
+                        time:   [419.31 ms 420.37 ms 421.45 ms]
+                        thrpt:  [23.728 MiB/s 23.789 MiB/s 23.849 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  4 (4.00%) high mild
+
+Benchmarking Text Format Block/1KB
+Benchmarking Text Format Block/1KB: Warming up for 5.0000 s
+Benchmarking Text Format Block/1KB: Collecting 100 samples in estimated 60.019 s (591k iterations)
+Benchmarking Text Format Block/1KB: Analyzing
+Text Format Block/1KB   time:   [99.882 us 100.25 us 100.65 us]
+                        thrpt:  [9.7030 MiB/s 9.7409 MiB/s 9.7772 MiB/s]
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low severe
+  1 (1.00%) low mild
+  4 (4.00%) high mild
+Benchmarking Text Format Block/100KB
+Benchmarking Text Format Block/100KB: Warming up for 5.0000 s
+Benchmarking Text Format Block/100KB: Collecting 100 samples in estimated 83.626 s (10k iterations)
+Benchmarking Text Format Block/100KB: Analyzing
+Text Format Block/100KB time:   [8.2309 ms 8.2725 ms 8.3215 ms]
+                        thrpt:  [11.735 MiB/s 11.805 MiB/s 11.865 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+Benchmarking Text Format Block/1MB
+Benchmarking Text Format Block/1MB: Warming up for 5.0000 s
+Benchmarking Text Format Block/1MB: Collecting 100 samples in estimated 61.828 s (700 iterations)
+Benchmarking Text Format Block/1MB: Analyzing
+Text Format Block/1MB   time:   [86.685 ms 87.150 ms 87.640 ms]
+                        thrpt:  [11.410 MiB/s 11.474 MiB/s 11.536 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking Text Format Block/10MB
+Benchmarking Text Format Block/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 102.1s, or reduce sample count to 50.
+Benchmarking Text Format Block/10MB: Collecting 100 samples in estimated 102.11 s (100 iterations)
+Benchmarking Text Format Block/10MB: Analyzing
+Text Format Block/10MB  time:   [976.20 ms 980.00 ms 983.84 ms]
+                        thrpt:  [10.164 MiB/s 10.204 MiB/s 10.244 MiB/s]
+
+Benchmarking Text Raw Line/1KB
+Benchmarking Text Raw Line/1KB: Warming up for 5.0000 s
+Benchmarking Text Raw Line/1KB: Collecting 100 samples in estimated 60.002 s (1.3M iterations)
+Benchmarking Text Raw Line/1KB: Analyzing
+Text Raw Line/1KB       time:   [45.515 us 45.694 us 45.889 us]
+                        thrpt:  [21.281 MiB/s 21.372 MiB/s 21.456 MiB/s]
+Found 6 outliers among 100 measurements (6.00%)
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Text Raw Line/100KB
+Benchmarking Text Raw Line/100KB: Warming up for 5.0000 s
+Benchmarking Text Raw Line/100KB: Collecting 100 samples in estimated 74.576 s (25k iterations)
+Benchmarking Text Raw Line/100KB: Analyzing
+Text Raw Line/100KB     time:   [2.9436 ms 2.9523 ms 2.9620 ms]
+                        thrpt:  [32.970 MiB/s 33.078 MiB/s 33.176 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Text Raw Line/1MB
+Benchmarking Text Raw Line/1MB: Warming up for 5.0000 s
+Benchmarking Text Raw Line/1MB: Collecting 100 samples in estimated 62.102 s (2000 iterations)
+Benchmarking Text Raw Line/1MB: Analyzing
+Text Raw Line/1MB       time:   [30.610 ms 30.747 ms 30.892 ms]
+                        thrpt:  [32.371 MiB/s 32.523 MiB/s 32.669 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  4 (4.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Text Raw Line/10MB
+Benchmarking Text Raw Line/10MB: Warming up for 5.0000 s
+Benchmarking Text Raw Line/10MB: Collecting 100 samples in estimated 64.696 s (200 iterations)
+Benchmarking Text Raw Line/10MB: Analyzing
+Text Raw Line/10MB      time:   [322.97 ms 324.18 ms 325.49 ms]
+                        thrpt:  [30.723 MiB/s 30.847 MiB/s 30.963 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high severe
+
+Benchmarking Text Raw Inline Block/1KB
+Benchmarking Text Raw Inline Block/1KB: Warming up for 5.0000 s
+Benchmarking Text Raw Inline Block/1KB: Collecting 100 samples in estimated 60.605 s (293k iterations)
+Benchmarking Text Raw Inline Block/1KB: Analyzing
+Text Raw Inline Block/1KB
+                        time:   [203.32 us 203.96 us 204.66 us]
+                        thrpt:  [4.7717 MiB/s 4.7880 MiB/s 4.8031 MiB/s]
+Found 8 outliers among 100 measurements (8.00%)
+  1 (1.00%) low mild
+  5 (5.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Text Raw Inline Block/100KB
+Benchmarking Text Raw Inline Block/100KB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 93.8s, enable flat sampling, or reduce sample count to 50.
+Benchmarking Text Raw Inline Block/100KB: Collecting 100 samples in estimated 93.758 s (5050 iterations)
+Benchmarking Text Raw Inline Block/100KB: Analyzing
+Text Raw Inline Block/100KB
+                        time:   [18.882 ms 19.174 ms 19.694 ms]
+                        thrpt:  [4.9588 MiB/s 5.0933 MiB/s 5.1719 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Text Raw Inline Block/1MB
+Benchmarking Text Raw Inline Block/1MB: Warming up for 5.0000 s
+Benchmarking Text Raw Inline Block/1MB: Collecting 100 samples in estimated 77.043 s (400 iterations)
+Benchmarking Text Raw Inline Block/1MB: Analyzing
+Text Raw Inline Block/1MB
+                        time:   [191.00 ms 191.62 ms 192.26 ms]
+                        thrpt:  [5.2012 MiB/s 5.2186 MiB/s 5.2357 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking Text Raw Inline Block/10MB
+Benchmarking Text Raw Inline Block/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 193.1s, or reduce sample count to 30.
+Benchmarking Text Raw Inline Block/10MB: Collecting 100 samples in estimated 193.07 s (100 iterations)
+Benchmarking Text Raw Inline Block/10MB: Analyzing
+Text Raw Inline Block/10MB
+                        time:   [1.9240 s 1.9275 s 1.9314 s]
+                        thrpt:  [5.1776 MiB/s 5.1881 MiB/s 5.1976 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking Text Raw Block/1KB
+Benchmarking Text Raw Block/1KB: Warming up for 5.0000 s
+Benchmarking Text Raw Block/1KB: Collecting 100 samples in estimated 60.180 s (591k iterations)
+Benchmarking Text Raw Block/1KB: Analyzing
+Text Raw Block/1KB      time:   [100.15 us 100.56 us 100.98 us]
+                        thrpt:  [9.6707 MiB/s 9.7109 MiB/s 9.7515 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking Text Raw Block/100KB
+Benchmarking Text Raw Block/100KB: Warming up for 5.0000 s
+Benchmarking Text Raw Block/100KB: Collecting 100 samples in estimated 79.193 s (10k iterations)
+Benchmarking Text Raw Block/100KB: Analyzing
+Text Raw Block/100KB    time:   [7.4072 ms 7.4325 ms 7.4578 ms]
+                        thrpt:  [13.095 MiB/s 13.139 MiB/s 13.184 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  1 (1.00%) low mild
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Text Raw Block/1MB
+Benchmarking Text Raw Block/1MB: Warming up for 5.0000 s
+Benchmarking Text Raw Block/1MB: Collecting 100 samples in estimated 64.471 s (800 iterations)
+Benchmarking Text Raw Block/1MB: Analyzing
+Text Raw Block/1MB      time:   [81.878 ms 82.879 ms 83.943 ms]
+                        thrpt:  [11.913 MiB/s 12.066 MiB/s 12.213 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking Text Raw Block/10MB
+Benchmarking Text Raw Block/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 94.9s, or reduce sample count to 60.
+Benchmarking Text Raw Block/10MB: Collecting 100 samples in estimated 94.946 s (100 iterations)
+Benchmarking Text Raw Block/10MB: Analyzing
+Text Raw Block/10MB     time:   [849.11 ms 861.79 ms 875.14 ms]
+                        thrpt:  [11.427 MiB/s 11.604 MiB/s 11.777 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+
+Benchmarking Line of Names/1KB
+Benchmarking Line of Names/1KB: Warming up for 5.0000 s
+Benchmarking Line of Names/1KB: Collecting 100 samples in estimated 60.190 s (1.0M iterations)
+Benchmarking Line of Names/1KB: Analyzing
+Line of Names/1KB       time:   [59.758 us 60.073 us 60.435 us]
+                        thrpt:  [16.159 MiB/s 16.256 MiB/s 16.342 MiB/s]
+                 change:
+                        time:   [+11.013% +11.827% +12.607%] (p = 0.00 < 0.05)
+                        thrpt:  [-11.195% -10.577% -9.9205%]
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking Line of Names/100KB
+Benchmarking Line of Names/100KB: Warming up for 5.0000 s
+Benchmarking Line of Names/100KB: Collecting 100 samples in estimated 69.256 s (15k iterations)
+Benchmarking Line of Names/100KB: Analyzing
+Line of Names/100KB     time:   [4.5217 ms 4.5409 ms 4.5624 ms]
+                        thrpt:  [21.405 MiB/s 21.506 MiB/s 21.597 MiB/s]
+                 change:
+                        time:   [+16.083% +16.946% +17.816%] (p = 0.00 < 0.05)
+                        thrpt:  [-15.122% -14.491% -13.855%]
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking Line of Names/1MB
+Benchmarking Line of Names/1MB: Warming up for 5.0000 s
+Benchmarking Line of Names/1MB: Collecting 100 samples in estimated 64.799 s (1300 iterations)
+Benchmarking Line of Names/1MB: Analyzing
+Line of Names/1MB       time:   [49.574 ms 49.799 ms 50.041 ms]
+                        thrpt:  [19.984 MiB/s 20.081 MiB/s 20.172 MiB/s]
+                 change:
+                        time:   [+13.050% +13.689% +14.345%] (p = 0.00 < 0.05)
+                        thrpt:  [-12.545% -12.041% -11.543%]
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Line of Names/10MB
+Benchmarking Line of Names/10MB: Warming up for 5.0000 s
+Benchmarking Line of Names/10MB: Collecting 100 samples in estimated 106.24 s (200 iterations)
+Benchmarking Line of Names/10MB: Analyzing
+Line of Names/10MB      time:   [531.90 ms 535.52 ms 539.34 ms]
+                        thrpt:  [18.541 MiB/s 18.674 MiB/s 18.800 MiB/s]
+                 change:
+                        time:   [+12.866% +13.901% +14.865%] (p = 0.00 < 0.05)
+                        thrpt:  [-12.941% -12.205% -11.399%]
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Benchmarking Names with Invalid Suffixes/1KB
+Benchmarking Names with Invalid Suffixes/1KB: Warming up for 5.0000 s
+Benchmarking Names with Invalid Suffixes/1KB: Collecting 100 samples in estimated 60.146 s (808k iterations)
+Benchmarking Names with Invalid Suffixes/1KB: Analyzing
+Names with Invalid Suffixes/1KB
+                        time:   [73.398 us 73.687 us 73.998 us]
+                        thrpt:  [13.197 MiB/s 13.253 MiB/s 13.305 MiB/s]
+                 change:
+                        time:   [+28.835% +29.735% +30.595%] (p = 0.00 < 0.05)
+                        thrpt:  [-23.427% -22.920% -22.381%]
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Names with Invalid Suffixes/100KB
+Benchmarking Names with Invalid Suffixes/100KB: Warming up for 5.0000 s
+Benchmarking Names with Invalid Suffixes/100KB: Collecting 100 samples in estimated 63.203 s (10k iterations)
+Benchmarking Names with Invalid Suffixes/100KB: Analyzing
+Names with Invalid Suffixes/100KB
+                        time:   [6.1990 ms 6.2150 ms 6.2325 ms]
+                        thrpt:  [15.669 MiB/s 15.713 MiB/s 15.753 MiB/s]
+                 change:
+                        time:   [+32.797% +33.716% +34.621%] (p = 0.00 < 0.05)
+                        thrpt:  [-25.717% -25.215% -24.697%]
+                        Performance has regressed.
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Names with Invalid Suffixes/1MB
+Benchmarking Names with Invalid Suffixes/1MB: Warming up for 5.0000 s
+Benchmarking Names with Invalid Suffixes/1MB: Collecting 100 samples in estimated 61.322 s (900 iterations)
+Benchmarking Names with Invalid Suffixes/1MB: Analyzing
+Names with Invalid Suffixes/1MB
+                        time:   [67.478 ms 67.768 ms 68.079 ms]
+                        thrpt:  [14.689 MiB/s 14.756 MiB/s 14.820 MiB/s]
+                 change:
+                        time:   [+27.414% +28.141% +28.808%] (p = 0.00 < 0.05)
+                        thrpt:  [-22.365% -21.961% -21.516%]
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Names with Invalid Suffixes/10MB
+Benchmarking Names with Invalid Suffixes/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 73.9s, or reduce sample count to 80.
+Benchmarking Names with Invalid Suffixes/10MB: Collecting 100 samples in estimated 73.920 s (100 iterations)
+Benchmarking Names with Invalid Suffixes/10MB: Analyzing
+Names with Invalid Suffixes/10MB
+                        time:   [728.53 ms 731.92 ms 735.60 ms]
+                        thrpt:  [13.594 MiB/s 13.663 MiB/s 13.726 MiB/s]
+                 change:
+                        time:   [+30.342% +31.089% +31.843%] (p = 0.00 < 0.05)
+                        thrpt:  [-24.152% -23.716% -23.279%]
+                        Performance has regressed.
+Found 8 outliers among 100 measurements (8.00%)
+  7 (7.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking Line of Operators/1KB
+Benchmarking Line of Operators/1KB: Warming up for 5.0000 s
+Benchmarking Line of Operators/1KB: Collecting 100 samples in estimated 60.016 s (379k iterations)
+Benchmarking Line of Operators/1KB: Analyzing
+Line of Operators/1KB   time:   [156.25 us 156.81 us 157.42 us]
+                        thrpt:  [6.2034 MiB/s 6.2277 MiB/s 6.2501 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  4 (4.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Line of Operators/100KB
+Benchmarking Line of Operators/100KB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 72.7s, enable flat sampling, or reduce sample count to 60.
+Benchmarking Line of Operators/100KB: Collecting 100 samples in estimated 72.694 s (5050 iterations)
+Benchmarking Line of Operators/100KB: Analyzing
+Line of Operators/100KB time:   [14.255 ms 14.301 ms 14.349 ms]
+                        thrpt:  [6.8056 MiB/s 6.8287 MiB/s 6.8506 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+Benchmarking Line of Operators/1MB
+Benchmarking Line of Operators/1MB: Warming up for 5.0000 s
+Benchmarking Line of Operators/1MB: Collecting 100 samples in estimated 62.230 s (400 iterations)
+Benchmarking Line of Operators/1MB: Analyzing
+Line of Operators/1MB   time:   [153.63 ms 154.19 ms 154.77 ms]
+                        thrpt:  [6.4613 MiB/s 6.4856 MiB/s 6.5090 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking Line of Operators/10MB
+Benchmarking Line of Operators/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 186.8s, or reduce sample count to 30.
+Benchmarking Line of Operators/10MB: Collecting 100 samples in estimated 186.83 s (100 iterations)
+Benchmarking Line of Operators/10MB: Analyzing
+Line of Operators/10MB  time:   [1.8574 s 1.8668 s 1.8771 s]
+                        thrpt:  [5.3275 MiB/s 5.3569 MiB/s 5.3839 MiB/s]
+Found 9 outliers among 100 measurements (9.00%)
+  3 (3.00%) high mild
+  6 (6.00%) high severe
+
+Benchmarking Dot Call Operators/1KB
+Benchmarking Dot Call Operators/1KB: Warming up for 5.0000 s
+Benchmarking Dot Call Operators/1KB: Collecting 100 samples in estimated 60.717 s (364k iterations)
+Benchmarking Dot Call Operators/1KB: Analyzing
+Dot Call Operators/1KB  time:   [166.99 us 167.81 us 168.72 us]
+                        thrpt:  [5.7881 MiB/s 5.8193 MiB/s 5.8479 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+Benchmarking Dot Call Operators/100KB
+Benchmarking Dot Call Operators/100KB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 78.2s, enable flat sampling, or reduce sample count to 60.
+Benchmarking Dot Call Operators/100KB: Collecting 100 samples in estimated 78.187 s (5050 iterations)
+Benchmarking Dot Call Operators/100KB: Analyzing
+Dot Call Operators/100KB
+                        time:   [15.341 ms 15.413 ms 15.499 ms]
+                        thrpt:  [6.3007 MiB/s 6.3360 MiB/s 6.3659 MiB/s]
+Found 9 outliers among 100 measurements (9.00%)
+  4 (4.00%) high mild
+  5 (5.00%) high severe
+Benchmarking Dot Call Operators/1MB
+Benchmarking Dot Call Operators/1MB: Warming up for 5.0000 s
+Benchmarking Dot Call Operators/1MB: Collecting 100 samples in estimated 67.771 s (400 iterations)
+Benchmarking Dot Call Operators/1MB: Analyzing
+Dot Call Operators/1MB  time:   [167.82 ms 168.53 ms 169.30 ms]
+                        thrpt:  [5.9065 MiB/s 5.9337 MiB/s 5.9586 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Dot Call Operators/10MB
+Benchmarking Dot Call Operators/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 201.0s, or reduce sample count to 20.
+Benchmarking Dot Call Operators/10MB: Collecting 100 samples in estimated 201.05 s (100 iterations)
+Benchmarking Dot Call Operators/10MB: Analyzing
+Dot Call Operators/10MB time:   [1.9866 s 1.9902 s 1.9940 s]
+                        thrpt:  [5.0151 MiB/s 5.0245 MiB/s 5.0338 MiB/s]
+
+Benchmarking Operators with Invalid Suffixes/1KB
+Benchmarking Operators with Invalid Suffixes/1KB: Warming up for 5.0000 s
+Benchmarking Operators with Invalid Suffixes/1KB: Collecting 100 samples in estimated 60.373 s (359k iterations)
+Benchmarking Operators with Invalid Suffixes/1KB: Analyzing
+Operators with Invalid Suffixes/1KB
+                        time:   [166.71 us 167.28 us 167.89 us]
+                        thrpt:  [5.8168 MiB/s 5.8378 MiB/s 5.8578 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking Operators with Invalid Suffixes/100KB
+Benchmarking Operators with Invalid Suffixes/100KB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 84.7s, enable flat sampling, or reduce sample count to 50.
+Benchmarking Operators with Invalid Suffixes/100KB: Collecting 100 samples in estimated 84.719 s (5050 iterations)
+Benchmarking Operators with Invalid Suffixes/100KB: Analyzing
+Operators with Invalid Suffixes/100KB
+                        time:   [16.576 ms 16.610 ms 16.646 ms]
+                        thrpt:  [5.8667 MiB/s 5.8794 MiB/s 5.8915 MiB/s]
+Found 9 outliers among 100 measurements (9.00%)
+  5 (5.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Operators with Invalid Suffixes/1MB
+Benchmarking Operators with Invalid Suffixes/1MB: Warming up for 5.0000 s
+Benchmarking Operators with Invalid Suffixes/1MB: Collecting 100 samples in estimated 77.553 s (400 iterations)
+Benchmarking Operators with Invalid Suffixes/1MB: Analyzing
+Operators with Invalid Suffixes/1MB
+                        time:   [190.72 ms 191.37 ms 192.06 ms]
+                        thrpt:  [5.2066 MiB/s 5.2254 MiB/s 5.2434 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Operators with Invalid Suffixes/10MB
+Benchmarking Operators with Invalid Suffixes/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 200.4s, or reduce sample count to 20.
+Benchmarking Operators with Invalid Suffixes/10MB: Collecting 100 samples in estimated 200.41 s (100 iterations)
+Benchmarking Operators with Invalid Suffixes/10MB: Analyzing
+Operators with Invalid Suffixes/10MB
+                        time:   [1.9801 s 1.9850 s 1.9900 s]
+                        thrpt:  [5.0252 MiB/s 5.0378 MiB/s 5.0503 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking Top Level Block/1KB
+Benchmarking Top Level Block/1KB: Warming up for 5.0000 s
+Benchmarking Top Level Block/1KB: Collecting 100 samples in estimated 60.148 s (439k iterations)
+Benchmarking Top Level Block/1KB: Analyzing
+Top Level Block/1KB     time:   [135.12 us 136.16 us 137.18 us]
+                        thrpt:  [7.1186 MiB/s 7.1722 MiB/s 7.2271 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Top Level Block/100KB
+Benchmarking Top Level Block/100KB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 74.8s, enable flat sampling, or reduce sample count to 60.
+Benchmarking Top Level Block/100KB: Collecting 100 samples in estimated 74.801 s (5050 iterations)
+Benchmarking Top Level Block/100KB: Analyzing
+Top Level Block/100KB   time:   [12.673 ms 12.909 ms 13.286 ms]
+                        thrpt:  [7.3503 MiB/s 7.5652 MiB/s 7.7058 MiB/s]
+Found 11 outliers among 100 measurements (11.00%)
+  1 (1.00%) high mild
+  10 (10.00%) high severe
+Benchmarking Top Level Block/1MB
+Benchmarking Top Level Block/1MB: Warming up for 5.0000 s
+Benchmarking Top Level Block/1MB: Collecting 100 samples in estimated 65.610 s (400 iterations)
+Benchmarking Top Level Block/1MB: Analyzing
+Top Level Block/1MB     time:   [162.85 ms 164.40 ms 166.00 ms]
+                        thrpt:  [6.0239 MiB/s 6.0828 MiB/s 6.1406 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking Top Level Block/10MB
+Benchmarking Top Level Block/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 192.6s, or reduce sample count to 30.
+Benchmarking Top Level Block/10MB: Collecting 100 samples in estimated 192.57 s (100 iterations)
+Benchmarking Top Level Block/10MB: Analyzing
+Top Level Block/10MB    time:   [1.7550 s 1.7734 s 1.7927 s]
+                        thrpt:  [5.5781 MiB/s 5.6389 MiB/s 5.6979 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Benchmarking Nested Block/1KB
+Benchmarking Nested Block/1KB: Warming up for 5.0000 s
+Benchmarking Nested Block/1KB: Collecting 100 samples in estimated 60.396 s (470k iterations)
+Benchmarking Nested Block/1KB: Analyzing
+Nested Block/1KB        time:   [126.52 us 126.95 us 127.42 us]
+                        thrpt:  [7.6644 MiB/s 7.6926 MiB/s 7.7188 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Nested Block/100KB
+Benchmarking Nested Block/100KB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 60.1s, enable flat sampling, or reduce sample count to 70.
+Benchmarking Nested Block/100KB: Collecting 100 samples in estimated 60.082 s (5050 iterations)
+Benchmarking Nested Block/100KB: Analyzing
+Nested Block/100KB      time:   [11.774 ms 11.809 ms 11.845 ms]
+                        thrpt:  [8.2444 MiB/s 8.2698 MiB/s 8.2940 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking Nested Block/1MB
+Benchmarking Nested Block/1MB: Warming up for 5.0000 s
+Benchmarking Nested Block/1MB: Collecting 100 samples in estimated 65.952 s (500 iterations)
+Benchmarking Nested Block/1MB: Analyzing
+Nested Block/1MB        time:   [128.39 ms 128.79 ms 129.21 ms]
+                        thrpt:  [7.7391 MiB/s 7.7645 MiB/s 7.7890 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) low mild
+  4 (4.00%) high mild
+Benchmarking Nested Block/10MB
+Benchmarking Nested Block/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 137.9s, or reduce sample count to 40.
+Benchmarking Nested Block/10MB: Collecting 100 samples in estimated 137.93 s (100 iterations)
+zBenchmarking Nested Block/10MB: Analyzing
+Nested Block/10MB       time:   [1.3666 s 1.3709 s 1.3756 s]
+                        thrpt:  [7.2696 MiB/s 7.2943 MiB/s 7.3177 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  5 (5.00%) high mild
+
+Benchmarking Deeply Nested Blocks/1KB
+Benchmarking Deeply Nested Blocks/1KB: Warming up for 5.0000 s
+Benchmarking Deeply Nested Blocks/1KB: Collecting 100 samples in estimated 60.124 s (510k iterations)
+Benchmarking Deeply Nested Blocks/1KB: Analyzing
+Deeply Nested Blocks/1KB
+                        time:   [116.18 us 116.57 us 116.98 us]
+                        thrpt:  [8.3483 MiB/s 8.3777 MiB/s 8.4057 MiB/s]
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low mild
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Deeply Nested Blocks/100KB
+Benchmarking Deeply Nested Blocks/100KB: Warming up for 5.0000 s
+Benchmarking Deeply Nested Blocks/100KB: Collecting 100 samples in estimated 104.54 s (10k iterations)
+Benchmarking Deeply Nested Blocks/100KB: Analyzing
+Deeply Nested Blocks/100KB
+                        time:   [10.170 ms 10.194 ms 10.220 ms]
+                        thrpt:  [9.5550 MiB/s 9.5798 MiB/s 9.6025 MiB/s]
+Found 9 outliers among 100 measurements (9.00%)
+  5 (5.00%) low mild
+  2 (2.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Deeply Nested Blocks/1MB
+Benchmarking Deeply Nested Blocks/1MB: Warming up for 5.0000 s
+Benchmarking Deeply Nested Blocks/1MB: Collecting 100 samples in estimated 68.067 s (600 iterations)
+Benchmarking Deeply Nested Blocks/1MB: Analyzing
+Deeply Nested Blocks/1MB
+                        time:   [112.48 ms 112.87 ms 113.28 ms]
+                        thrpt:  [8.8280 MiB/s 8.8599 MiB/s 8.8902 MiB/s]
+Found 7 outliers among 100 measurements (7.00%)
+  6 (6.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Deeply Nested Blocks/10MB
+Benchmarking Deeply Nested Blocks/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 122.1s, or reduce sample count to 40.
+Benchmarking Deeply Nested Blocks/10MB: Collecting 100 samples in estimated 122.13 s (100 iterations)
+Benchmarking Deeply Nested Blocks/10MB: Analyzing
+Deeply Nested Blocks/10MB
+                        time:   [1.2016 s 1.2054 s 1.2092 s]
+                        thrpt:  [8.2696 MiB/s 8.2962 MiB/s 8.3223 MiB/s]
+
+Benchmarking Line Comment/1KB
+Benchmarking Line Comment/1KB: Warming up for 5.0000 s
+Benchmarking Line Comment/1KB: Collecting 100 samples in estimated 60.299 s (540k iterations)
+Benchmarking Line Comment/1KB: Analyzing
+Line Comment/1KB        time:   [111.89 us 112.42 us 113.04 us]
+                        thrpt:  [8.6391 MiB/s 8.6866 MiB/s 8.7276 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Line Comment/100KB
+Benchmarking Line Comment/100KB: Warming up for 5.0000 s
+Benchmarking Line Comment/100KB: Collecting 100 samples in estimated 95.414 s (10k iterations)
+Benchmarking Line Comment/100KB: Analyzing
+Line Comment/100KB      time:   [9.3743 ms 9.4036 ms 9.4344 ms]
+                        thrpt:  [10.351 MiB/s 10.385 MiB/s 10.417 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high severe
+Benchmarking Line Comment/1MB
+Benchmarking Line Comment/1MB: Warming up for 5.0000 s
+Benchmarking Line Comment/1MB: Collecting 100 samples in estimated 67.796 s (700 iterations)
+Benchmarking Line Comment/1MB: Analyzing
+Line Comment/1MB        time:   [95.796 ms 96.104 ms 96.420 ms]
+                        thrpt:  [10.371 MiB/s 10.405 MiB/s 10.439 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking Line Comment/10MB
+Benchmarking Line Comment/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 98.2s, or reduce sample count to 60.
+Benchmarking Line Comment/10MB: Collecting 100 samples in estimated 98.202 s (100 iterations)
+Benchmarking Line Comment/10MB: Analyzing
+Line Comment/10MB       time:   [973.65 ms 976.13 ms 978.69 ms]
+                        thrpt:  [10.218 MiB/s 10.245 MiB/s 10.271 MiB/s]
+
+Benchmarking Comment in Line/1KB
+Benchmarking Comment in Line/1KB: Warming up for 5.0000 s
+Benchmarking Comment in Line/1KB: Collecting 100 samples in estimated 60.515 s (475k iterations)
+Benchmarking Comment in Line/1KB: Analyzing
+Comment in Line/1KB     time:   [126.02 us 126.50 us 127.05 us]
+                        thrpt:  [7.6865 MiB/s 7.7200 MiB/s 7.7493 MiB/s]
+Found 6 outliers among 100 measurements (6.00%)
+  2 (2.00%) low mild
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Comment in Line/100KB
+Benchmarking Comment in Line/100KB: Warming up for 5.0000 s
+Benchmarking Comment in Line/100KB: Collecting 100 samples in estimated 114.18 s (10k iterations)
+Benchmarking Comment in Line/100KB: Analyzing
+Comment in Line/100KB   time:   [11.131 ms 11.161 ms 11.192 ms]
+                        thrpt:  [8.7252 MiB/s 8.7498 MiB/s 8.7737 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Comment in Line/1MB
+Benchmarking Comment in Line/1MB: Warming up for 5.0000 s
+Benchmarking Comment in Line/1MB: Collecting 100 samples in estimated 70.930 s (600 iterations)
+Benchmarking Comment in Line/1MB: Analyzing
+Comment in Line/1MB     time:   [117.40 ms 117.74 ms 118.10 ms]
+                        thrpt:  [8.4673 MiB/s 8.4934 MiB/s 8.5182 MiB/s]
+Found 7 outliers among 100 measurements (7.00%)
+  6 (6.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Comment in Line/10MB
+Benchmarking Comment in Line/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 122.5s, or reduce sample count to 40.
+Benchmarking Comment in Line/10MB: Collecting 100 samples in estimated 122.49 s (100 iterations)
+Benchmarking Comment in Line/10MB: Analyzing
+Comment in Line/10MB    time:   [1.2901 s 1.3058 s 1.3223 s]
+                        thrpt:  [7.5624 MiB/s 7.6581 MiB/s 7.7511 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Benchmarking Doc Comment/1KB
+Benchmarking Doc Comment/1KB: Warming up for 5.0000 s
+Benchmarking Doc Comment/1KB: Collecting 100 samples in estimated 60.242 s (515k iterations)
+Benchmarking Doc Comment/1KB: Analyzing
+Doc Comment/1KB         time:   [116.92 us 118.19 us 119.58 us]
+                        thrpt:  [8.1668 MiB/s 8.2628 MiB/s 8.3521 MiB/s]
+Found 8 outliers among 100 measurements (8.00%)
+  4 (4.00%) high mild
+  4 (4.00%) high severe
+Benchmarking Doc Comment/100KB
+Benchmarking Doc Comment/100KB: Warming up for 5.0000 s
+Benchmarking Doc Comment/100KB: Collecting 100 samples in estimated 107.57 s (10k iterations)
+Benchmarking Doc Comment/100KB: Analyzing
+Doc Comment/100KB       time:   [10.378 ms 10.493 ms 10.618 ms]
+                        thrpt:  [9.1969 MiB/s 9.3071 MiB/s 9.4102 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  3 (3.00%) high mild
+Benchmarking Doc Comment/1MB
+Benchmarking Doc Comment/1MB: Warming up for 5.0000 s
+Benchmarking Doc Comment/1MB: Collecting 100 samples in estimated 66.362 s (600 iterations)
+Benchmarking Doc Comment/1MB: Analyzing
+Doc Comment/1MB         time:   [104.35 ms 105.09 ms 105.91 ms]
+                        thrpt:  [9.4419 MiB/s 9.5154 MiB/s 9.5836 MiB/s]
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Doc Comment/10MB
+Benchmarking Doc Comment/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 118.7s, or reduce sample count to 50.
+Benchmarking Doc Comment/10MB: Collecting 100 samples in estimated 118.67 s (100 iterations)
+Benchmarking Doc Comment/10MB: Analyzing
+Doc Comment/10MB        time:   [1.1454 s 1.1550 s 1.1649 s]
+                        thrpt:  [8.5844 MiB/s 8.6578 MiB/s 8.7308 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Benchmarking Simple Combined Example/1KB
+Benchmarking Simple Combined Example/1KB: Warming up for 5.0000 s
+Benchmarking Simple Combined Example/1KB: Collecting 100 samples in estimated 60.155 s (449k iterations)
+Benchmarking Simple Combined Example/1KB: Analyzing
+Simple Combined Example/1KB
+                        time:   [124.75 us 125.64 us 126.68 us]
+                        thrpt:  [7.7091 MiB/s 7.7724 MiB/s 7.8284 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+Benchmarking Simple Combined Example/100KB
+Benchmarking Simple Combined Example/100KB: Warming up for 5.0000 s
+Benchmarking Simple Combined Example/100KB: Collecting 100 samples in estimated 100.33 s (10k iterations)
+Benchmarking Simple Combined Example/100KB: Analyzing
+Simple Combined Example/100KB
+                        time:   [9.7571 ms 9.8659 ms 9.9947 ms]
+                        thrpt:  [9.7708 MiB/s 9.8984 MiB/s 10.009 MiB/s]
+Found 11 outliers among 100 measurements (11.00%)
+  9 (9.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Simple Combined Example/1MB
+Benchmarking Simple Combined Example/1MB: Warming up for 5.0000 s
+Benchmarking Simple Combined Example/1MB: Collecting 100 samples in estimated 66.463 s (600 iterations)
+Benchmarking Simple Combined Example/1MB: Analyzing
+Simple Combined Example/1MB
+                        time:   [105.56 ms 106.36 ms 107.25 ms]
+                        thrpt:  [9.3243 MiB/s 9.4018 MiB/s 9.4737 MiB/s]
+Found 7 outliers among 100 measurements (7.00%)
+  6 (6.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Simple Combined Example/10MB
+Benchmarking Simple Combined Example/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 113.8s, or reduce sample count to 50.
+Benchmarking Simple Combined Example/10MB: Collecting 100 samples in estimated 113.81 s (100 iterations)
+Benchmarking Simple Combined Example/10MB: Analyzing
+Simple Combined Example/10MB
+                        time:   [1.1215 s 1.1243 s 1.1273 s]
+                        thrpt:  [8.8711 MiB/s 8.8942 MiB/s 8.9168 MiB/s]
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking Complex Combined Example/1KB
+Benchmarking Complex Combined Example/1KB: Warming up for 5.0000 s
+Benchmarking Complex Combined Example/1KB: Collecting 100 samples in estimated 60.007 s (439k iterations)
+Benchmarking Complex Combined Example/1KB: Analyzing
+Complex Combined Example/1KB
+                        time:   [132.09 us 133.43 us 134.80 us]
+                        thrpt:  [7.2447 MiB/s 7.3191 MiB/s 7.3931 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Complex Combined Example/100KB
+Benchmarking Complex Combined Example/100KB: Warming up for 5.0000 s
+Benchmarking Complex Combined Example/100KB: Collecting 100 samples in estimated 104.04 s (10k iterations)
+Benchmarking Complex Combined Example/100KB: Analyzing
+Complex Combined Example/100KB
+                        time:   [10.365 ms 10.489 ms 10.622 ms]
+                        thrpt:  [9.1941 MiB/s 9.3103 MiB/s 9.4216 MiB/s]
+Found 10 outliers among 100 measurements (10.00%)
+  7 (7.00%) high mild
+  3 (3.00%) high severe
+Benchmarking Complex Combined Example/1MB
+Benchmarking Complex Combined Example/1MB: Warming up for 5.0000 s
+Benchmarking Complex Combined Example/1MB: Collecting 100 samples in estimated 69.205 s (600 iterations)
+Benchmarking Complex Combined Example/1MB: Analyzing
+Complex Combined Example/1MB
+                        time:   [107.75 ms 108.11 ms 108.49 ms]
+                        thrpt:  [9.2177 MiB/s 9.2501 MiB/s 9.2811 MiB/s]
+Found 5 outliers among 100 measurements (5.00%)
+  4 (4.00%) high mild
+  1 (1.00%) high severe
+Benchmarking Complex Combined Example/10MB
+Benchmarking Complex Combined Example/10MB: Warming up for 5.0000 s
+
+Warning: Unable to complete 100 samples in 60.0s. You may wish to increase target time to 116.0s, or reduce sample count to 50.
+Benchmarking Complex Combined Example/10MB: Collecting 100 samples in estimated 115.97 s (100 iterations)
+Benchmarking Complex Combined Example/10MB: Analyzing
+Complex Combined Example/10MB
+                        time:   [1.1445 s 1.1474 s 1.1505 s]
+                        thrpt:  [8.6922 MiB/s 8.7152 MiB/s 8.7374 MiB/s]
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+
+Benchmarking Rust Vector/1KB
+Benchmarking Rust Vector/1KB: Warming up for 5.0000 s
+Benchmarking Rust Vector/1KB: Collecting 100 samples in estimated 60.000 s (62M iterations)
+Benchmarking Rust Vector/1KB: Analyzing
+Rust Vector/1KB         time:   [964.81 ns 973.39 ns 982.32 ns]
+                        thrpt:  [994.14 MiB/s 1003.3 MiB/s 1012.2 MiB/s]
+Found 4 outliers among 100 measurements (4.00%)
+  4 (4.00%) high mild
+Benchmarking Rust Vector/100KB
+Benchmarking Rust Vector/100KB: Warming up for 5.0000 s
+Benchmarking Rust Vector/100KB: Collecting 100 samples in estimated 60.062 s (606k iterations)
+Benchmarking Rust Vector/100KB: Analyzing
+Rust Vector/100KB       time:   [93.582 us 93.984 us 94.418 us]
+                        thrpt:  [1.0101 GiB/s 1.0147 GiB/s 1.0191 GiB/s]
+Found 6 outliers among 100 measurements (6.00%)
+  6 (6.00%) high mild
+Benchmarking Rust Vector/1MB
+Benchmarking Rust Vector/1MB: Warming up for 5.0000 s
+Benchmarking Rust Vector/1MB: Collecting 100 samples in estimated 63.686 s (66k iterations)
+Benchmarking Rust Vector/1MB: Analyzing
+Rust Vector/1MB         time:   [985.29 us 998.03 us 1.0120 ms]
+                        thrpt:  [988.13 MiB/s 1002.0 MiB/s 1014.9 MiB/s]
+Found 6 outliers among 100 measurements (6.00%)
+  4 (4.00%) high mild
+  2 (2.00%) high severe
+Benchmarking Rust Vector/10MB
+Benchmarking Rust Vector/10MB: Warming up for 5.0000 s
+Benchmarking Rust Vector/10MB: Collecting 100 samples in estimated 99.442 s (10k iterations)
+Benchmarking Rust Vector/10MB: Analyzing
+Rust Vector/10MB        time:   [9.8262 ms 9.9178 ms 10.023 ms]
+                        thrpt:  [997.75 MiB/s 1008.3 MiB/s 1017.7 MiB/s]
+Found 9 outliers among 100 measurements (9.00%)
+  4 (4.00%) high mild
+  5 (5.00%) high severe
