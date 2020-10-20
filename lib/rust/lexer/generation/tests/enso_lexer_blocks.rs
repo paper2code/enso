@@ -242,6 +242,54 @@ some_long_thing
 }
 
 #[test]
+fn multiple_dedent() {
+    let input = make_unix_line_endings(r#"
+some_long_thing
+    foo ->
+        Bar
+        baz
+quux
+"#);
+    let function_block = Token::Block(
+        BlockType::Discontinuous,
+        8,
+        vec![
+            Token::Line(vec![Token::Referent("Bar",0)],0,LineEnding::LF),
+            Token::Line(vec![Token::Variable("baz",0)],0,LineEnding::LF),
+        ],
+        0
+    );
+    let foo_block = Token::Block(
+        BlockType::Continuous,
+        4,
+        vec![
+            Token::Line(vec![
+                Token::Variable("foo",0),
+                Token::Operator("->",1),
+                function_block,
+            ], 0, LineEnding::LF),
+        ],
+        0
+    );
+    let expected = token::Stream::from(vec![
+        Token::Block(
+            BlockType::Continuous,
+            0,
+            vec![
+                Token::BlankLine(0,LineEnding::LF),
+                Token::Line(vec![
+                    Token::Variable("some_long_thing",0),
+                    foo_block
+                ], 0, LineEnding::LF),
+                Token::Line(vec![Token::Variable("quux",0)],0,LineEnding::LF),
+            ],
+            0
+        )
+    ]);
+    assert_lexes(input,expected);
+}
+
+#[test]
 fn extra_indented_blank_lines() {
     let input          = "a\n    b\n        \n  \n    c";
     let indented_block = Token::Block(
