@@ -16,9 +16,9 @@ use std::time::Duration;
 /// Configures the benchmarking process.
 pub fn bench_config() -> Criterion {
     Criterion::default()
-        .measurement_time(Duration::from_secs(30))
+        .measurement_time(Duration::from_secs(60))
         .warm_up_time(Duration::from_secs(3))
-        .sample_size(30)
+        .sample_size(25)
 }
 
 
