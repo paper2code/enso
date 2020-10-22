@@ -144,7 +144,7 @@ r#"''' Here is my block of format text. I can `interpolate + things` like that.
 
         pub fn raw_block() -> String {
             preprocess(
-r#"''' Here is my block of raw text. `Interpolations` are nothing special here.
+r#"""" Here is my block of raw text. `Interpolations` are nothing special here.
     It goes on and on and on for I can escape \" though.
 
     It also supports blank lines!
@@ -294,7 +294,7 @@ Main.print_decomp a b =
 
     pub fn complex() -> String {
         preprocess(
-            r#"
+r#"
 import Base.Meta
 
 ##  Frobnicate the doodads by constructing a new type operator through runtime reflection such that
