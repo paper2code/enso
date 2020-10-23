@@ -19,6 +19,7 @@ pub fn bench_config() -> Criterion {
         .measurement_time(Duration::from_secs(60))
         .warm_up_time(Duration::from_secs(3))
         .sample_size(25)
+        .retain_baseline("EnsoLexer".to_string())
 }
 
 

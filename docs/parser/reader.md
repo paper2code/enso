@@ -16,13 +16,13 @@ project is going to use, as well as backing formats for the stream.
 
 - [Reader Functionality](#reader-functionality)
 - [Reader Structure](#reader-structure)
-    - [Read](#read)
-    - [Decoder](#decoder)
+  - [Read](#read)
+  - [Decoder](#decoder)
 - [Provided Encodings](#provided-encodings)
-    - [UTF-8](#utf-8)
-    - [UTF-16](#utf-16)
-    - [UTF-32](#utf-32)
-    - [Benchmarks](#benchmarks)
+  - [UTF-8](#utf-8)
+  - [UTF-16](#utf-16)
+  - [UTF-32](#utf-32)
+  - [Benchmarks](#benchmarks)
 
 <!-- /MarkdownTOC -->
 
