@@ -16,12 +16,12 @@ identify blocks
 <!-- MarkdownTOC levels="2,3" autolink="true" -->
 
 - [Lexer Architecture](#lexer-architecture)
-    - [Libraries in the Lexer Definition](#libraries-in-the-lexer-definition)
+  - [Libraries in the Lexer Definition](#libraries-in-the-lexer-definition)
 - [Lexer Functionality](#lexer-functionality)
 - [The Lexer AST](#the-lexer-ast)
 - [Benchmarking the Lexer](#benchmarking-the-lexer)
-    - [Running a Subset of the Benchmarks](#running-a-subset-of-the-benchmarks)
-    - [Changing the Lexer](#changing-the-lexer)
+  - [Running a Subset of the Benchmarks](#running-a-subset-of-the-benchmarks)
+  - [Changing the Lexer](#changing-the-lexer)
 
 <!-- /MarkdownTOC -->
 
