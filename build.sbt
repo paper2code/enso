@@ -489,14 +489,8 @@ lazy val `lexer-bench` =
           "-Xms4096m",
           "-Xmx4096m",
           "-XX:+FlightRecorder",
-//          "-Dcom.sun.management.jmxremote=true",
-//          "-Dcom.sun.management.jmxremote.port=4004",
-//          "-Dcom.sun.management.jmxremote.ssl=false",
-//          "-Dcom.sun.management.jmxremote.authenticate=false"
-
       ),
       mainClass in Benchmark := Some("org.openjdk.jmh.Main"),
-      logBuffered := false,
       bench := Def.task {
           (run in Benchmark).toTask("").value
         },
